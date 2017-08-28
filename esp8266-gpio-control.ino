@@ -50,7 +50,7 @@ void setup() {
   }
 
   InitWiFi();
-  client.setServer( thingsboardServer, 1883 );
+  client.setServer(thingsboardServer, 1883);
   client.setCallback(onMessage);
 
   server.on("/update_token", HTTP_POST, handleSetToken);
@@ -76,12 +76,12 @@ void onMessage(const char* topic, byte* payload, unsigned int length) {
   // Check request method
   String methodName = String((const char*)data["method"]);
 
-  if (methodName.equals("getGpioStatus")) {
+  if (methodName.equals("getRelayStatus")) {
     // Reply with GPIO status
     String responseTopic = String(topic);
     responseTopic.replace("request", "response");
     client.publish(responseTopic.c_str(), getRelayStatus().c_str());
-  } else if (methodName.equals("setGpioStatus")) {
+  } else if (methodName.equals("setRelayStatus")) {
     // Update GPIO status and reply
     setRelayStatus(data["params"]["pin"], data["params"]["enabled"]);
     String responseTopic = String(topic);
