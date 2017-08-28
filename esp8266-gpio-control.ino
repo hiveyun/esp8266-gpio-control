@@ -9,13 +9,13 @@
 #define SMART_CONFIG_BUTTON 0
 #define SMART_CONFIG_LED 2
 
-#define GPIO0 5
-#define GPIO0_PIN 1
+#define RELAY 5
+#define RELAY_PIN 1
 
 // We assume that all GPIOs are LOW
-boolean gpioState = false;
+boolean relayState = false;
 
-bool led_status = false;
+bool blinkStatus = false;
 
 char thingsboardServer[] = "tb.codecard.cn";
 
@@ -25,34 +25,33 @@ PubSubClient client(wifiClient);
 
 ESP8266WebServer server(80);
 
-char wifi_ap[32];
-char wifi_password[64];
+char wifiAP[32];
+char wifiPassword[64];
 char token[30];
 
 void setup() {
   EEPROM.begin(512);
-  pinMode(GPIO0, OUTPUT);
+  pinMode(RELAY, OUTPUT);
   pinMode(SMART_CONFIG_LED, OUTPUT);
   digitalWrite(SMART_CONFIG_LED, HIGH);
   pinMode(SMART_CONFIG_BUTTON, INPUT_PULLUP);
   delay(10);
 
   for (int i = 0; i < 32; ++i) {
-    wifi_ap[i] = char(EEPROM.read(i));
+    wifiAP[i] = char(EEPROM.read(i));
   }
 
   for (int i = 32; i < 96; ++i) {
-    wifi_password[i - 32] = char(EEPROM.read(i));
+    wifiPassword[i - 32] = char(EEPROM.read(i));
   }
 
   for (int i = 96; i < 126; ++i) {
     token[i - 96] = char(EEPROM.read(i));
   }
 
-
   InitWiFi();
   client.setServer( thingsboardServer, 1883 );
-  client.setCallback(on_message);
+  client.setCallback(onMessage);
 
   server.on("/update_token", HTTP_POST, handleSetToken);
   server.onNotFound(handleNotFound);
@@ -60,18 +59,17 @@ void setup() {
 }
 
 // The callback for when a PUBLISH message is received from the server.
-void on_message(const char* topic, byte* payload, unsigned int length) {
+void onMessage(const char* topic, byte* payload, unsigned int length) {
 
   char json[length + 1];
-  strncpy (json, (char*)payload, length);
+  strncpy(json, (char*)payload, length);
   json[length] = '\0';
 
   // Decode JSON request
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& data = jsonBuffer.parseObject((char*)json);
 
-  if (!data.success())
-  {
+  if (!data.success()) {
     return;
   }
 
@@ -82,30 +80,30 @@ void on_message(const char* topic, byte* payload, unsigned int length) {
     // Reply with GPIO status
     String responseTopic = String(topic);
     responseTopic.replace("request", "response");
-    client.publish(responseTopic.c_str(), get_gpio_status().c_str());
+    client.publish(responseTopic.c_str(), getRelayStatus().c_str());
   } else if (methodName.equals("setGpioStatus")) {
     // Update GPIO status and reply
-    set_gpio_status(data["params"]["pin"], data["params"]["enabled"]);
+    setRelayStatus(data["params"]["pin"], data["params"]["enabled"]);
     String responseTopic = String(topic);
     responseTopic.replace("request", "response");
-    client.publish(responseTopic.c_str(), get_gpio_status().c_str());
-    client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
+    client.publish(responseTopic.c_str(), getRelayStatus().c_str());
+    client.publish("v1/devices/me/attributes", getRelayStatus().c_str());
   }
 }
 
-String get_gpio_status() {
-  // Prepare gpios JSON payload string
+String getRelayStatus() {
+  // Prepare relays JSON payload string
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& data = jsonBuffer.createObject();
-  data[String(GPIO0_PIN)] = gpioState ? true : false;
+  data[String(RELAY_PIN)] = relayState ? true : false;
   char payload[256];
   data.printTo(payload, sizeof(payload));
   String strPayload = String(payload);
   return strPayload;
 }
 
-String get_driver_ip() {
-  // Prepare gpios JSON payload string
+String getLocalIP() {
+  // Prepare relays JSON payload string
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& data = jsonBuffer.createObject();
   data["ip"] = WiFi.localIP().toString();
@@ -115,16 +113,16 @@ String get_driver_ip() {
   return strPayload;
 }
 
-void set_gpio_status(int pin, boolean enabled) {
-  if (pin == GPIO0_PIN) {
+void setRelayStatus(int pin, boolean enabled) {
+  if (pin == RELAY_PIN) {
     // Output GPIOs state
-    digitalWrite(GPIO0, enabled ? HIGH : LOW);
+    digitalWrite(RELAY, enabled ? HIGH : LOW);
     // Update GPIOs state
-    gpioState = enabled;
+    relayState = enabled;
   }
 }
 
-void smart_config() {
+void smartConfig() {
   if (digitalRead(SMART_CONFIG_BUTTON)) {
     return;
   }
@@ -135,52 +133,60 @@ void smart_config() {
   }
   WiFi.disconnect();
 
-  bool led_status = true;
   while(WiFi.status() != WL_CONNECTED) {
     delay(500);
-    smart_blink();
+    smartBlink();
     WiFi.beginSmartConfig();
     while(1){
       delay(200);
-      smart_blink();
+      smartBlink();
       if (WiFi.smartConfigDone()) {
         break;
       }
     }
   }
 
-  digitalWrite(SMART_CONFIG_LED, HIGH);
+  closeBlink();
 
-  strcpy(wifi_ap, WiFi.SSID().c_str());
-  strcpy(wifi_password, WiFi.psk().c_str());
+  strcpy(wifiAP, WiFi.SSID().c_str());
+  strcpy(wifiPassword, WiFi.psk().c_str());
 
   for (int i = 0; i < 32; ++i) {
-    EEPROM.write(i, wifi_ap[i]);
+    EEPROM.write(i, wifiAP[i]);
   }
 
   for (int i = 32; i < 96; ++i) {
-    EEPROM.write(i, wifi_password[i - 32]);
+    EEPROM.write(i, wifiPassword[i - 32]);
   }
   EEPROM.commit();
 }
 
-void smart_blink() {
-  if (led_status) {
-    digitalWrite(SMART_CONFIG_LED, HIGH);
-    led_status = false;
+void smartBlink() {
+  if (blinkStatus) {
+    closeBlink();
   } else {
-    digitalWrite(SMART_CONFIG_LED, LOW);
-    led_status = true;
+    openBlink();
   }
 }
 
+void openBlink() {
+  digitalWrite(SMART_CONFIG_LED, LOW);
+  blinkStatus = true;
+}
+
+void closeBlink() {
+  digitalWrite(SMART_CONFIG_LED, HIGH);
+  blinkStatus = false;
+}
+
 void loop() {
-  if ( !client.connected() ) {
+  if (!client.connected()) {
     reconnect();
   }
 
-  smart_config();
   client.loop();
+
+  smartConfig();
   server.handleClient();
 }
 
@@ -189,42 +195,42 @@ void InitWiFi() {
   // set for STA mode
   WiFi.mode(WIFI_STA);
 
-  WiFi.begin(wifi_ap, wifi_password);
+  WiFi.begin(wifiAP, wifiPassword);
+  configWiFiWithSmartConfig();
+}
+
+void configWiFiWithSmartConfig() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    smart_blink();
-    smart_config();
+    smartBlink();
+    smartConfig();
   }
-  digitalWrite(SMART_CONFIG_LED, HIGH);
+  closeBlink();
 }
 
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
-    if ( WiFi.status() != WL_CONNECTED) {
-      while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        smart_blink();
-        smart_config();
-      }
+    if (WiFi.status() != WL_CONNECTED) {
+      configWiFiWithSmartConfig();
     }
     // Attempt to connect (clientId, username, password)
-    if ( client.connect("ESP8266 Relay", token, NULL) ) {
+    if (client.connect("ESP8266 Relay", token, NULL)) {
       client.subscribe("v1/devices/me/rpc/request/+");
-      client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
-      client.publish("v1/devices/me/attributes", get_driver_ip().c_str());
+      client.publish("v1/devices/me/attributes", getRelayStatus().c_str());
+      client.publish("v1/devices/me/attributes", getLocalIP().c_str());
     } else {
       // Wait 5 seconds before retrying
 
-      unsigned long lastSend = millis();
-      while (millis() - lastSend < 5000) {
-        smart_config();
+      unsigned long lastCheck = millis();
+      while (millis() - lastCheck < 5000) {
+        smartConfig();
         server.handleClient();
       }
-      smart_blink();
+      smartBlink();
     }
   }
-  digitalWrite(SMART_CONFIG_LED, HIGH);
+  closeBlink();
 }
 
 void handleSetToken() {
