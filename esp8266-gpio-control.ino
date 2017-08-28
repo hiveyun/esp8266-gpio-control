@@ -180,8 +180,6 @@ void loop() {
   }
 
   smart_config();
-  // digitalWrite(SMART_CONFIG_LED, HIGH);
-
   client.loop();
   server.handleClient();
 }
@@ -204,13 +202,11 @@ void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
     if ( WiFi.status() != WL_CONNECTED) {
-      // WiFi.begin(wifi_ap, wifi_password);
       while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
         smart_blink();
         smart_config();
       }
-      digitalWrite(SMART_CONFIG_LED, HIGH);
     }
     // Attempt to connect (clientId, username, password)
     if ( client.connect("ESP8266 Relay", token, NULL) ) {
