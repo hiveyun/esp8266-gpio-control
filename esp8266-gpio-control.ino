@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <EEPROM.h>
-
-#define TOKEN "3NNWc7wmX0a7I4LBOZMt"
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
 
 #define SMART_CONFIG_BUTTON 0
 #define SMART_CONFIG_LED 2
@@ -15,7 +15,6 @@
 // We assume that all GPIOs are LOW
 boolean gpioState = false;
 
-
 bool led_status = false;
 
 char thingsboardServer[] = "tb.codecard.cn";
@@ -24,8 +23,11 @@ WiFiClient wifiClient;
 
 PubSubClient client(wifiClient);
 
+ESP8266WebServer server(80);
+
 char wifi_ap[32];
 char wifi_password[64];
+char token[30];
 
 void setup() {
   EEPROM.begin(512);
@@ -43,9 +45,18 @@ void setup() {
     wifi_password[i - 32] = char(EEPROM.read(i));
   }
 
+  for (int i = 96; i < 126; ++i) {
+    token[i - 96] = char(EEPROM.read(i));
+  }
+
+
   InitWiFi();
   client.setServer( thingsboardServer, 1883 );
   client.setCallback(on_message);
+
+  server.on("/update_token", HTTP_POST, handleSetToken);
+  server.onNotFound(handleNotFound);
+  server.begin();
 }
 
 // The callback for when a PUBLISH message is received from the server.
@@ -161,6 +172,7 @@ void loop() {
   // digitalWrite(SMART_CONFIG_LED, HIGH);
 
   client.loop();
+  server.handleClient();
 }
 
 void InitWiFi() {
@@ -190,12 +202,42 @@ void reconnect() {
       digitalWrite(SMART_CONFIG_LED, HIGH);
     }
     // Attempt to connect (clientId, username, password)
-    if ( client.connect("ESP8266 Device", TOKEN, NULL) ) {
+    if ( client.connect("ESP8266 Relay", token, NULL) ) {
       client.subscribe("v1/devices/me/rpc/request/+");
       client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
     } else {
       // Wait 5 seconds before retrying
-      delay( 5000 );
+
+      unsigned long lastSend = millis();
+      while (millis() - lastSend < 5000) {
+        smart_config();
+        server.handleClient();
+      }
+      smart_blink();
     }
   }
+  digitalWrite(SMART_CONFIG_LED, HIGH);
+}
+
+void handleSetToken() {
+  boolean updated = false;
+  for (uint8_t i=0; i<server.args(); i++){
+    if (server.argName(i) == "token") {
+        strcpy(token, server.arg(i).c_str());
+        updated = true;
+        break;
+    };
+  }
+  if (updated) {
+    for (int i = 96; i < 126; ++i) {
+      EEPROM.write(i, token[i - 96]);
+    }
+    EEPROM.commit();
+    client.disconnect();
+  }
+  server.send(200, "text/plain", "OK");
+}
+
+void handleNotFound(){
+  server.send(404, "text/plain", "Not Found");
 }
