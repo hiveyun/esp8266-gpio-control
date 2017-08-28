@@ -104,6 +104,17 @@ String get_gpio_status() {
   return strPayload;
 }
 
+String get_driver_ip() {
+  // Prepare gpios JSON payload string
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& data = jsonBuffer.createObject();
+  data["ip"] = WiFi.localIP().toString();
+  char payload[256];
+  data.printTo(payload, sizeof(payload));
+  String strPayload = String(payload);
+  return strPayload;
+}
+
 void set_gpio_status(int pin, boolean enabled) {
   if (pin == GPIO0_PIN) {
     // Output GPIOs state
@@ -205,6 +216,7 @@ void reconnect() {
     if ( client.connect("ESP8266 Relay", token, NULL) ) {
       client.subscribe("v1/devices/me/rpc/request/+");
       client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
+      client.publish("v1/devices/me/attributes", get_driver_ip().c_str());
     } else {
       // Wait 5 seconds before retrying
 
