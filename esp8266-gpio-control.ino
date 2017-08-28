@@ -96,10 +96,9 @@ String getRelayStatus() {
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& data = jsonBuffer.createObject();
   data[String(RELAY_PIN)] = relayState ? true : false;
-  char payload[256];
+  char payload[30];
   data.printTo(payload, sizeof(payload));
-  String strPayload = String(payload);
-  return strPayload;
+  return String(payload);
 }
 
 String getLocalIP() {
@@ -107,10 +106,9 @@ String getLocalIP() {
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& data = jsonBuffer.createObject();
   data["ip"] = WiFi.localIP().toString();
-  char payload[256];
+  char payload[30];
   data.printTo(payload, sizeof(payload));
-  String strPayload = String(payload);
-  return strPayload;
+  return String(payload);
 }
 
 void setRelayStatus(int pin, boolean enabled) {
