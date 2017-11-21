@@ -1,4 +1,6 @@
+// https://github.com/bblanchon/ArduinoJson.git
 #include <ArduinoJson.h>
+// https://github.com/knolleary/pubsubclient.git
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
