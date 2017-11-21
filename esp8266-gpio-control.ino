@@ -2,6 +2,10 @@
 #include <ArduinoJson.h>
 // https://github.com/knolleary/pubsubclient.git
 #include <PubSubClient.h>
+// https://github.com/ivanseidel/ArduinoThread.git
+#include <Thread.h>
+#include <ThreadController.h>
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <EEPROM.h>
@@ -31,6 +35,47 @@ char wifiAP[32];
 char wifiPassword[64];
 char token[30];
 
+// ThreadController that will controll all threads
+ThreadController controll = ThreadController();
+Thread* blink5000Thread = new Thread();
+Thread* blink500Thread = new Thread();
+Thread* blink200Thread = new Thread();
+
+void enable5000() {
+  blink5000Thread.enabled = true;
+  blink500Thread.enabled = false;
+  blink200Thread.enabled = false;
+}
+
+void enable500() {
+  blink5000Thread.enabled = false;
+  blink500Thread.enabled = true;
+  blink200Thread.enabled = false;
+}
+
+void enable200() {
+  blink5000Thread.enabled = false;
+  blink500Thread.enabled = false;
+  blink200Thread.enabled = true;
+}
+
+void threadDelay(unsigned long timeout) {
+  unsigned long lastCheck = millis();
+  while (millis() - lastCheck < timeout) {
+    controll.run();
+  }
+}
+
+void threadDelay1(unsigned long timeout) {
+  unsigned long lastCheck = millis();
+  while (millis() - lastCheck < timeout) {
+    controll.run();
+    smartConfig();
+    server.handleClient();
+  }
+}
+
+
 void setup() {
   EEPROM.begin(512);
   pinMode(RELAY, OUTPUT);
@@ -38,6 +83,18 @@ void setup() {
   digitalWrite(SMART_CONFIG_LED, HIGH);
   pinMode(SMART_CONFIG_BUTTON, INPUT_PULLUP);
   delay(10);
+
+  // Configure Thread
+  blink5000Thread -> onRun(smartBlink);
+  blink5000Thread -> setInterval(5000);
+  blink500Thread  -> onRun(smartBlink);
+  blink500Thread  -> setInterval(500);
+  blink200Thread  -> onRun(smartBlink);
+  blink200Thread  -> setInterval(200);
+
+  controll.add(blink5000Thread);
+  controll.add(blink500Thread);
+  controll.add(blink200Thread);
 
   for (int i = 0; i < 32; ++i) {
     wifiAP[i] = char(EEPROM.read(i));
@@ -59,6 +116,7 @@ void setup() {
   server.onNotFound(handleNotFound);
   server.begin();
 }
+
 
 // The callback for when a PUBLISH message is received from the server.
 void onMessage(const char* topic, byte* payload, unsigned int length) {
@@ -127,26 +185,26 @@ void smartConfig() {
     return;
   }
 
-  delay(2000);
+  threadDelay(2000);
   if (digitalRead(SMART_CONFIG_BUTTON)) {
     return;
   }
   WiFi.disconnect();
 
   while(WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    smartBlink();
+    enabled500();
+    threadDelay(500);
     WiFi.beginSmartConfig();
-    while(1){
-      delay(200);
-      smartBlink();
+    while(1) {
+      enabled200();
+      threadDelay(200);
       if (WiFi.smartConfigDone()) {
         break;
       }
     }
   }
 
-  closeBlink();
+  enabled5000();
 
   strcpy(wifiAP, WiFi.SSID().c_str());
   strcpy(wifiPassword, WiFi.psk().c_str());
@@ -188,6 +246,7 @@ void loop() {
 
   smartConfig();
   server.handleClient();
+  controll.run();
 }
 
 void InitWiFi() {
@@ -201,11 +260,11 @@ void InitWiFi() {
 
 void configWiFiWithSmartConfig() {
   while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    smartBlink();
+    enabled5000();
+    threadDelay(1000);
     smartConfig();
   }
-  closeBlink();
+  enabled5000();
 }
 
 void reconnect() {
@@ -221,16 +280,11 @@ void reconnect() {
       client.publish("v1/devices/me/attributes", getLocalIP().c_str());
     } else {
       // Wait 5 seconds before retrying
-
-      unsigned long lastCheck = millis();
-      while (millis() - lastCheck < 5000) {
-        smartConfig();
-        server.handleClient();
-      }
-      smartBlink();
+      enabled5000();
+      threadDelay1(5000);
     }
   }
-  closeBlink();
+  enable5000();
 }
 
 void handleSetToken() {
