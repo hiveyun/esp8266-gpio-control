@@ -19,7 +19,7 @@ boolean relayState = false;
 
 bool blinkStatus = false;
 
-char thingsboardServer[] = "tb.codecard.cn";
+char hiveyunServer[] = "platform.hiveyun.com";
 
 WiFiClient wifiClient;
 
@@ -52,7 +52,7 @@ void setup() {
   }
 
   InitWiFi();
-  client.setServer(thingsboardServer, 1883);
+  client.setServer(hiveyunServer, 1883);
   client.setCallback(onMessage);
 
   server.on("/update_token", HTTP_POST, handleSetToken);
