@@ -42,21 +42,21 @@ Thread* blink500Thread = new Thread();
 Thread* blink200Thread = new Thread();
 
 void enable5000() {
-  blink5000Thread.enabled = true;
-  blink500Thread.enabled = false;
-  blink200Thread.enabled = false;
+  blink5000Thread -> enabled = true;
+  blink500Thread  -> enabled = false;
+  blink200Thread  -> enabled = false;
 }
 
 void enable500() {
-  blink5000Thread.enabled = false;
-  blink500Thread.enabled = true;
-  blink200Thread.enabled = false;
+  blink5000Thread -> enabled = false;
+  blink500Thread  -> enabled = true;
+  blink200Thread  -> enabled = false;
 }
 
 void enable200() {
-  blink5000Thread.enabled = false;
-  blink500Thread.enabled = false;
-  blink200Thread.enabled = true;
+  blink5000Thread -> enabled = false;
+  blink500Thread  -> enabled = false;
+  blink200Thread  -> enabled = true;
 }
 
 void threadDelay(unsigned long timeout) {
@@ -192,11 +192,11 @@ void smartConfig() {
   WiFi.disconnect();
 
   while(WiFi.status() != WL_CONNECTED) {
-    enabled500();
+    enable500();
     threadDelay(500);
     WiFi.beginSmartConfig();
     while(1) {
-      enabled200();
+      enable200();
       threadDelay(200);
       if (WiFi.smartConfigDone()) {
         break;
@@ -204,7 +204,7 @@ void smartConfig() {
     }
   }
 
-  enabled5000();
+  enable5000();
 
   strcpy(wifiAP, WiFi.SSID().c_str());
   strcpy(wifiPassword, WiFi.psk().c_str());
@@ -260,11 +260,11 @@ void InitWiFi() {
 
 void configWiFiWithSmartConfig() {
   while (WiFi.status() != WL_CONNECTED) {
-    enabled5000();
+    enable5000();
     threadDelay(1000);
     smartConfig();
   }
-  enabled5000();
+  enable5000();
 }
 
 void reconnect() {
@@ -280,7 +280,7 @@ void reconnect() {
       client.publish("v1/devices/me/attributes", getLocalIP().c_str());
     } else {
       // Wait 5 seconds before retrying
-      enabled5000();
+      enable5000();
       threadDelay1(5000);
     }
   }
