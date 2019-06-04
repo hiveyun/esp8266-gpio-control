@@ -23,7 +23,7 @@ boolean relayState = false;
 
 bool blinkStatus = false;
 
-char hiveyunServer[] = "platform.hiveyun.com";
+char hiveyunServer[] = "gw.huabot.com";
 
 WiFiClient wifiClient;
 
@@ -109,7 +109,7 @@ void setup() {
   }
 
   InitWiFi();
-  client.setServer(hiveyunServer, 1883);
+  client.setServer(hiveyunServer, 11883);
   client.setCallback(onMessage);
 
   server.on("/update_token", HTTP_POST, handleSetToken);
@@ -143,11 +143,11 @@ void onMessage(const char* topic, byte* payload, unsigned int length) {
     client.publish(responseTopic.c_str(), getRelayStatus().c_str());
   } else if (methodName.equals("setRelayStatus")) {
     // Update GPIO status and reply
-    setRelayStatus(data["params"]["pin"], data["params"]["enabled"]);
+    setRelayStatus(data["pin"], data["enabled"]);
     String responseTopic = String(topic);
     responseTopic.replace("request", "response");
     client.publish(responseTopic.c_str(), getRelayStatus().c_str());
-    client.publish("v1/devices/me/attributes", getRelayStatus().c_str());
+    client.publish("/attributes", getRelayStatus().c_str());
   }
 }
 
@@ -274,10 +274,10 @@ void reconnect() {
       configWiFiWithSmartConfig();
     }
     // Attempt to connect (clientId, username, password)
-    if (client.connect("ESP8266 Relay", token, NULL)) {
-      client.subscribe("v1/devices/me/rpc/request/+");
-      client.publish("v1/devices/me/attributes", getRelayStatus().c_str());
-      client.publish("v1/devices/me/attributes", getLocalIP().c_str());
+    if (client.connect("ESP8266 Relay", "a937e135a6881193af39", "0d65b112c7b14f59b5ed69122958bb08")) {
+      client.subscribe("/request/+");
+      client.publish("/attributes", getRelayStatus().c_str());
+      client.publish("/attributes", getLocalIP().c_str());
     } else {
       // Wait 5 seconds before retrying
       enable5000();
