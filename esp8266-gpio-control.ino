@@ -6,6 +6,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
+#include <EEPROM.h>
+
 #include "relay_ext.h"
 #include "multism.h"
 
@@ -16,17 +18,24 @@
 #define SOUND 15
 #define LED 2
 
-char hiveyunServer[] = "gw.huabot.com";
+#define MQTT_USERNAME "a937e135a6881193af39"
+#define MQTT_HOST "gw.huabot.com"
+#define MQTT_PORT 11883
+
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
-char wifiAP[32] = "格物云";
-char wifiPassword[64] = "gewuyun@520";
+char wifiAP[32];
+char wifiPassword[64];
 
 unsigned long ledTimer = millis();
 unsigned long ledDelay = 1000;
 
+unsigned long button2PressTimer = millis();
+
 void setup() {
+  Serial.begin(9600);
+  EEPROM.begin(512);
   pinMode(RELAY_1, OUTPUT);
   pinMode(RELAY_2, OUTPUT);
   pinMode(BUTTON_1, INPUT_PULLUP);
@@ -36,10 +45,6 @@ void setup() {
   pinMode(LED, OUTPUT);
   initEventQueue();
   delay(10);
-
-  InitWiFi();
-  client.setServer(hiveyunServer, 11883);
-  client.setCallback(onMqttMessage);
 }
 
 
@@ -140,9 +145,23 @@ void loop() {
   }
 }
 
-void InitWiFi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(wifiAP, wifiPassword);
+void initWiFi(void) {
+    WiFi.mode(WIFI_STA);
+
+    for (int i = 0; i < 32; ++i) {
+      wifiAP[i] = char(EEPROM.read(i));
+    }
+
+    for (int i = 32; i < 96; ++i) {
+      wifiPassword[i - 32] = char(EEPROM.read(i));
+    }
+
+    WiFi.begin(wifiAP, wifiPassword);
+}
+
+void initMqtt(void) {
+    client.setServer(MQTT_HOST, MQTT_PORT);
+    client.setCallback(onMqttMessage);
 }
 
 void button1Check(const button1_check_t *a1) {
@@ -158,6 +177,16 @@ void button2Check(const button2_check_t *a1) {
         button2_released(NULL);
     } else {
         button2_pressed(NULL);
+    }
+}
+
+void button2EnterPressed(void) {
+    button2PressTimer = millis();
+}
+
+void button2Pressed(const button2_pressed_t *) {
+    if (button2PressTimer + 2000 < millis()) {
+        button2_longpressed(NULL);
     }
 }
 
@@ -221,20 +250,54 @@ void relay2On(void) {
     publishRelayState(2, 1);
 }
 
+void beginSmartconfig(void) {
+    Serial.println("beginSmartconfig");
+    WiFi.disconnect();
+    while(WiFi.status() == WL_CONNECTED) {
+        delay(100);
+    }
+    WiFi.beginSmartConfig();
+}
+
+void smartconfigDone(const smartconfig_check_t *) {
+    Serial.println("smartconfigDonecheck");
+    if (WiFi.smartConfigDone()) {
+        Serial.println("smartconfigDone");
+        smartconfig_done(NULL);
+        strcpy(wifiAP, WiFi.SSID().c_str());
+        strcpy(wifiPassword, WiFi.psk().c_str());
+
+        for (int i = 0; i < 32; ++i) {
+          EEPROM.write(i, wifiAP[i]);
+        }
+
+        for (int i = 32; i < 96; ++i) {
+          EEPROM.write(i, wifiPassword[i - 32]);
+        }
+        EEPROM.commit();
+    }
+}
+
 void soundAlarm(void) {
     digitalWrite(SOUND, HIGH);
     delay(200);
     digitalWrite(SOUND, LOW);
 }
 
-void soundError(void) {
+void soundAlarm1(const relay_button2LongPress_t *) {
     digitalWrite(SOUND, HIGH);
     delay(1000);
     digitalWrite(SOUND, LOW);
 }
 
+void soundError(void) {
+    digitalWrite(SOUND, HIGH);
+    delay(2000);
+    digitalWrite(SOUND, LOW);
+}
+
 void tryConnect(const mqtt_unconnected_t *) {
-    if (client.connect("ESP8266 Relay", "a937e135a6881193af39", "0d65b112c7b14f59b5ed69122958bb08")) {
+    if (client.connect("ESP8266 Relay", MQTT_USERNAME, "0d65b112c7b14f59b5ed69122958bb08")) {
         mqtt_connected(NULL);
     } else {
         mqtt_unconnected(NULL);

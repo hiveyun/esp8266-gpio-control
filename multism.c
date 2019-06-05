@@ -19,6 +19,7 @@ typedef enum {
     RELAY1,
     RELAY2,
     LED,
+    SMARTCONFIG,
 } sm_id_t;
 
 typedef struct {
@@ -32,6 +33,7 @@ typedef struct {
         relay1_Event_Wrapper relay1;
         relay2_Event_Wrapper relay2;
         led_Event_Wrapper led;
+        smartconfig_Event_Wrapper smartconfig;
     } wrapper;
 } system_message_t;
 
@@ -87,6 +89,10 @@ void flushEventQueue(void) {
         case LED:
             led_Handle_Message(msg->wrapper.led);
             led_Free_Message(msg->wrapper.led);
+            break;
+        case SMARTCONFIG:
+            smartconfig_Handle_Message(msg->wrapper.smartconfig);
+            smartconfig_Free_Message(msg->wrapper.smartconfig);
             break;
         }
         // We still need to free the copy of the wrapper itself, since
@@ -284,6 +290,31 @@ void led_Send_Message(led_Event_Wrapper e) {
     }
     msg->sm = LED;
     wrapper = &msg->wrapper.led;
+    memcpy(wrapper, &e, sizeof(e));
+
+    // Put the event on the queue, to be popped off later and handled
+    // in order.
+    success = enqueue(q, msg);
+    if (!success) {
+        fprintf(stderr, "Failed to enqueue message.\n");
+        exit(-1);
+    }
+}
+
+void smartconfig_Send_Message(smartconfig_Event_Wrapper e) {
+    bool success;
+    system_message_t *msg;
+    smartconfig_Event_Wrapper *wrapper;
+
+    // The event wrapper is passed in on the stack, so we have to
+    // allocate some memory that we can put in the message queue.
+    msg = malloc(sizeof(system_message_t));
+    if (msg == NULL) {
+        fprintf(stderr, "Failed to allocate message memory.\n");
+        exit(-1);
+    }
+    msg->sm = SMARTCONFIG;
+    wrapper = &msg->wrapper.smartconfig;
     memcpy(wrapper, &e, sizeof(e));
 
     // Put the event on the queue, to be popped off later and handled

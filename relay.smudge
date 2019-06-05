@@ -4,6 +4,7 @@ relay {
     main [
         button1 -(@soundAlarm, relay1.toggle)-,
         button2 -(@soundAlarm, relay2.toggle)-,
+        button2LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
         check -(net.check, button1.check, button2.check)-,
     ],
 }
@@ -41,15 +42,9 @@ relay2 {
 }
 
 net {
-    * ready --> idle,
-    idle [
-        check -(@netCheck)-,
-        offline --> offline,
-        online --> online,
-        _ --,
-    ],
+    * ready -(@initWiFi)-> offline,
     offline (@led200) [
-        check -(@netCheck)-,
+        check -(@netCheck, smartconfig.check)-,
         online --> online,
         _ --,
     ],
@@ -62,7 +57,7 @@ net {
 }
 
 mqtt {
-    * ready --> connect,
+    * ready -(@initMqtt)-> connect,
     connect [
         check -(@connectCheck)-,
         connected --> connected,
@@ -99,9 +94,16 @@ button2 {
         pressed --> pressed,
         _ --,
     ],
-    pressed [
+    pressed (@button2EnterPressed) [
         check -(@button2Check)-,
         released -(relay.button2)-> released,
+        longpressed -(relay.button2LongPress)-> longpressed,
+        pressed -(@button2Pressed)-,
+        _ --,
+    ],
+    longpressed [
+        check -(@button2Check)-,
+        released --> released,
         _ --,
     ],
 }
@@ -118,4 +120,16 @@ led {
         toggle --> off,
         _ --,
     ]
+}
+
+smartconfig {
+    * ready --> idle,
+    idle [
+        smartconfig --> smartconfig,
+        _ --,
+    ],
+    smartconfig (@led200, @beginSmartconfig) [
+        check -(@smartconfigDone)-,
+        done -(@soundAlarm)-> idle,
+    ] (@led1000)
 }
