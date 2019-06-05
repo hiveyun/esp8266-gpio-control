@@ -1,0 +1,107 @@
+relay {
+   * power-on -(@soundAlarm)-> main,
+
+    main [
+        button1 -(@soundAlarm, relay1.toggle)-,
+        button2 -(@soundAlarm, relay2.toggle)-,
+        check -(net.check, button1.check, button2.check)-,
+    ],
+}
+
+relay1 {
+    * ready --> off,
+
+    off (@relay1Off) [
+        toggle --> on,
+        on --> on,
+        _ -(@soundError)-,
+    ],
+
+    on (@relay1On) [
+        toggle --> off,
+        off --> off,
+        _ -(@soundError)-,
+    ]
+}
+
+relay2 {
+    * ready --> off,
+
+    off (@relay2Off) [
+        toggle --> on,
+        on --> on,
+        _ -(@soundError)-,
+    ],
+
+    on (@relay2On) [
+        toggle --> off,
+        off --> off,
+        _ -(@soundError)-,
+    ]
+}
+
+net {
+    * ready --> idle,
+    idle [
+        check -(@netCheck)-,
+        offline --> offline,
+        online --> online,
+        _ --,
+    ],
+    offline [
+        check -(@netCheck)-,
+        online --> online,
+        _ --,
+    ],
+    online [
+        check -(@netCheck)-,
+        offline --> offline,
+        online -(mqtt.check)-,
+        _ --,
+    ],
+}
+
+mqtt {
+    * ready --> connect,
+    connect [
+        check -(@connectCheck)-,
+        connected --> connected,
+        unconnected -(@tryConnect)-,
+        _ --,
+    ],
+    connected (@onConnected) [
+        check -(@connectCheck)-,
+        unconnected --> connect,
+        publish -(@onPublish)-,
+        // message -(@onMessage)-,
+        _ --,
+    ],
+}
+
+button1 {
+    * ready --> released,
+    released [
+        check -(@button1Check)-,
+        pressed --> pressed,
+        _ --,
+    ],
+    pressed [
+        check -(@button1Check)-,
+        released -(relay.button1)-> released,
+        _ --,
+    ],
+}
+
+button2 {
+    * ready --> released,
+    released [
+        check -(@button2Check)-,
+        pressed --> pressed,
+        _ --,
+    ],
+    pressed [
+        check -(@button2Check)-,
+        released -(relay.button2)-> released,
+        _ --,
+    ],
+}
