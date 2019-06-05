@@ -48,12 +48,12 @@ net {
         online --> online,
         _ --,
     ],
-    offline [
+    offline (@led200) [
         check -(@netCheck)-,
         online --> online,
         _ --,
     ],
-    online [
+    online (@led500) [
         check -(@netCheck)-,
         offline --> offline,
         online -(mqtt.check)-,
@@ -69,13 +69,13 @@ mqtt {
         unconnected -(@tryConnect)-,
         _ --,
     ],
-    connected (@onConnected) [
+    connected (@onConnected, @led1000) [
         check -(@connectCheck)-,
         unconnected --> connect,
-        publish -(@onPublish)-,
+        // publish -(@onPublish)-,
         // message -(@onMessage)-,
         _ --,
-    ],
+    ] (@led500),
 }
 
 button1 {
@@ -104,4 +104,18 @@ button2 {
         released -(relay.button2)-> released,
         _ --,
     ],
+}
+
+led {
+    * ready --> off,
+
+    off (@ledOff) [
+        toggle --> on,
+        _ --,
+    ],
+
+    on (@ledOn) [
+        toggle --> off,
+        _ --,
+    ]
 }
