@@ -7,6 +7,7 @@
 #include <WiFiClient.h>
 
 #include <EEPROM.h>
+#include <WiFiUDP.h>
 
 #include "relay_ext.h"
 #include "multism.h"
@@ -25,8 +26,12 @@
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
+WiFiUDP udpServer;
+
 char wifiAP[32];
 char wifiPassword[64];
+
+char mqtt_password[40];
 
 unsigned long ledTimer = millis();
 unsigned long ledDelay = 1000;
@@ -34,19 +39,18 @@ unsigned long ledDelay = 1000;
 unsigned long button2PressTimer = millis();
 
 void setup() {
-  Serial.begin(9600);
-  EEPROM.begin(512);
-  pinMode(RELAY_1, OUTPUT);
-  pinMode(RELAY_2, OUTPUT);
-  pinMode(BUTTON_1, INPUT_PULLUP);
-  pinMode(BUTTON_2, INPUT_PULLUP);
+    Serial.begin(9600);
+    EEPROM.begin(512);
+    pinMode(RELAY_1, OUTPUT);
+    pinMode(RELAY_2, OUTPUT);
+    pinMode(BUTTON_1, INPUT_PULLUP);
+    pinMode(BUTTON_2, INPUT_PULLUP);
 
-  pinMode(SOUND, OUTPUT);
-  pinMode(LED, OUTPUT);
-  initEventQueue();
-  delay(10);
+    pinMode(SOUND, OUTPUT);
+    pinMode(LED, OUTPUT);
+    initEventQueue();
+    delay(10);
 }
-
 
 
 void publishRelayState(int index, int state) {
@@ -162,6 +166,9 @@ void initWiFi(void) {
 void initMqtt(void) {
     client.setServer(MQTT_HOST, MQTT_PORT);
     client.setCallback(onMqttMessage);
+    for (int i = 96; i < 136; ++i) {
+        mqtt_password[i - 96] = char(EEPROM.read(i));
+    }
 }
 
 void button1Check(const button1_check_t *a1) {
@@ -296,8 +303,60 @@ void soundError(void) {
     digitalWrite(SOUND, LOW);
 }
 
-void tryConnect(const mqtt_unconnected_t *) {
-    if (client.connect("ESP8266 Relay", MQTT_USERNAME, "0d65b112c7b14f59b5ed69122958bb08")) {
+void fetchToken(const mqtt_check_t *) {
+    char message = udpServer.parsePacket();
+    int packetsize = udpServer.available();
+    if (message) {
+        char data[200];
+        udpServer.read(data,packetsize);
+
+        data[packetsize] = '\0';
+        Serial.println(data);
+        DynamicJsonDocument doc(200);
+        deserializeJson(doc, data);
+        String type = String((const char*)doc["type"]);
+        DynamicJsonDocument rsp(200);
+
+        if (type.equals("Ping")) {
+            rsp["type"] = "Pong";
+        } else if (type.equals("MqttPass")) {
+            strcpy(mqtt_password, doc["value"]);
+            rsp["type"] = "Success";
+            for (int i = 96; i < 136; ++i) {
+              EEPROM.write(i, mqtt_password[i - 96]);
+            }
+            EEPROM.commit();
+            client.disconnect();
+            mqtt_retry(NULL);
+        } else {
+            rsp["type"] = "Error";
+            rsp["value"] = "Unknow type";
+        }
+
+        IPAddress remoteip=udpServer.remoteIP();
+        uint16_t remoteport=udpServer.remotePort();
+        udpServer.beginPacket(remoteip,remoteport);
+
+        serializeJson(rsp, data);
+        Serial.println(data);
+
+        udpServer.write(data);
+
+        udpServer.endPacket();
+    }
+}
+
+void startUdpServer(void) {
+    Serial.println(WiFi.localIP().toString());
+    udpServer.begin(1234);
+}
+
+void stopUdpServer(void) {
+    udpServer.stop();
+}
+
+void tryConnect(void) {
+    if (client.connect("ESP8266 Relay", MQTT_USERNAME, mqtt_password)) {
         mqtt_connected(NULL);
     } else {
         mqtt_unconnected(NULL);

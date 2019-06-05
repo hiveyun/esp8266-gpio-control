@@ -61,14 +61,18 @@ mqtt {
     connect [
         check -(@connectCheck)-,
         connected --> connected,
-        unconnected -(@tryConnect)-,
+        unconnected -(@tryConnect)-> connecting,
         _ --,
     ],
+    connecting (@startUdpServer) [
+        check -(@connectCheck, @fetchToken)-,
+        connected --> connected,
+        retry -(@tryConnect)-,
+        _ --,
+    ] (@stopUdpServer),
     connected (@onConnected, @led1000) [
         check -(@connectCheck)-,
         unconnected --> connect,
-        // publish -(@onPublish)-,
-        // message -(@onMessage)-,
         _ --,
     ] (@led500),
 }
