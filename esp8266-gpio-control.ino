@@ -39,6 +39,8 @@ unsigned long ledDelay = 1000;
 unsigned long button1PressTimer = millis();
 unsigned long button2PressTimer = millis();
 
+bool maybeNeedBind = false;
+
 void setup() {
     Serial.begin(9600);
     EEPROM.begin(512);
@@ -275,6 +277,7 @@ void beginSmartconfig(void) {
         delay(100);
     }
     WiFi.beginSmartConfig();
+    maybeNeedBind = true;
 }
 
 void smartconfigDone(const smartconfig_check_t *) {
@@ -315,6 +318,9 @@ void soundError(void) {
 }
 
 void fetchToken(const mqtt_check_t *) {
+    if (!maybeNeedBind) {
+        return;
+    }
     char message = udpServer.parsePacket();
     int packetsize = udpServer.available();
     if (message) {
@@ -357,17 +363,23 @@ void fetchToken(const mqtt_check_t *) {
 }
 
 void startUdpServer(void) {
-    Serial.println(WiFi.localIP().toString());
+    if (!maybeNeedBind) {
+        return;
+    }
     udpServer.begin(1234);
 }
 
 void stopUdpServer(void) {
+    if (!maybeNeedBind) {
+        return;
+    }
     udpServer.stop();
 }
 
 void tryConnect(void) {
     if (client.connect("ESP8266 Relay", MQTT_USERNAME, mqtt_password)) {
         mqtt_connected(NULL);
+        maybeNeedBind = false;
     } else {
         mqtt_unconnected(NULL);
     }
