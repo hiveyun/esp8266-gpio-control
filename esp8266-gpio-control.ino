@@ -42,7 +42,6 @@ unsigned long button2PressTimer = millis();
 bool maybeNeedBind = false;
 
 void setup() {
-    Serial.begin(9600);
     EEPROM.begin(512);
     pinMode(RELAY_1, OUTPUT);
     pinMode(RELAY_2, OUTPUT);
@@ -271,7 +270,6 @@ void relay2On(void) {
 }
 
 void beginSmartconfig(void) {
-    Serial.println("beginSmartconfig");
     WiFi.disconnect();
     while(WiFi.status() == WL_CONNECTED) {
         delay(100);
@@ -281,9 +279,7 @@ void beginSmartconfig(void) {
 }
 
 void smartconfigDone(const smartconfig_check_t *) {
-    Serial.println("smartconfigDonecheck");
     if (WiFi.smartConfigDone()) {
-        Serial.println("smartconfigDone");
         smartconfig_done(NULL);
         strcpy(wifiAP, WiFi.SSID().c_str());
         strcpy(wifiPassword, WiFi.psk().c_str());
@@ -328,7 +324,6 @@ void fetchToken(const mqtt_check_t *) {
         udpServer.read(data,packetsize);
 
         data[packetsize] = '\0';
-        Serial.println(data);
         DynamicJsonDocument doc(200);
         deserializeJson(doc, data);
         String type = String((const char*)doc["type"]);
@@ -354,7 +349,6 @@ void fetchToken(const mqtt_check_t *) {
         udpServer.beginPacket(remoteip,remoteport);
 
         serializeJson(rsp, data);
-        Serial.println(data);
 
         udpServer.write(data);
 
