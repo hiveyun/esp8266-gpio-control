@@ -68,7 +68,7 @@ mqtt {
     connecting (@startUdpServer) [
         check -(@connectCheck, @fetchToken)-,
         connected --> connected,
-        retry -(@tryConnect)-,
+        unconnected -(@tryConnect)-,
         _ --,
     ] (@stopUdpServer),
     connected (@onConnected, @led1000) [

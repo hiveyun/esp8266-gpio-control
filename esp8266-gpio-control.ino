@@ -338,7 +338,6 @@ void fetchToken(const mqtt_check_t *) {
             }
             EEPROM.commit();
             client.disconnect();
-            mqtt_retry(NULL);
         } else {
             rsp["type"] = "Error";
             rsp["value"] = "Unknow type";
