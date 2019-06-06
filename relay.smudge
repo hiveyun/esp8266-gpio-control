@@ -58,25 +58,32 @@ net {
 }
 
 mqtt {
-    * ready -(@initMqtt)-> connect,
-    connect [
-        check -(@connectCheck)-,
-        connected --> connected,
-        unconnected -(@tryConnect)-> connecting,
+    * ready -(@initMqtt)-> idle,
+    idle [
+        check -(@checkPassword)-,
+        valid --> connecting,
+        invalid --> fetchToken,
         _ --,
     ],
-    connecting (@startUdpServer) [
-        check -(@connectCheck, @fetchToken)-,
-        connected --> connected,
-        unconnected -(@tryConnect)-,
+    fetchToken (@startUdpServer) [
+        check -(@fetchToken)-,
+        done --> connecting,
         _ --,
     ] (@stopUdpServer),
+    connecting [
+        check -(@connectCheck)-,
+        connected --> connected,
+        unconnected -(@tryConnect)-,
+        failed --> fetchToken,
+        _ --,
+    ],
     connected (@onConnected, @led1000) [
         check -(@connectCheck)-,
-        unconnected --> connect,
+        unconnected --> connecting,
         _ --,
     ] (@led500),
 }
+
 
 button1 {
     * ready --> released,

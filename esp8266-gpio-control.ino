@@ -39,6 +39,7 @@ unsigned long ledDelay = 1000;
 unsigned long button1PressTimer = millis();
 unsigned long button2PressTimer = millis();
 unsigned long smartconfigTimer = millis();
+unsigned long mqttRetryTimer = millis();
 
 bool maybeNeedBind = false;
 
@@ -320,9 +321,6 @@ void soundError(void) {
 }
 
 void fetchToken(const mqtt_check_t *) {
-    if (!maybeNeedBind) {
-        return;
-    }
     char message = udpServer.parsePacket();
     int packetsize = udpServer.available();
     if (message) {
@@ -345,6 +343,7 @@ void fetchToken(const mqtt_check_t *) {
             }
             EEPROM.commit();
             client.disconnect();
+            mqtt_done(NULL);
         } else {
             rsp["type"] = "Error";
             rsp["value"] = "Unknow type";
@@ -362,26 +361,34 @@ void fetchToken(const mqtt_check_t *) {
     }
 }
 
-void startUdpServer(void) {
-    if (!maybeNeedBind) {
-        return;
+void checkPassword(const mqtt_check_t *) {
+    if (mqtt_password[0] == '\0') {
+        mqtt_invalid(NULL);
+    } else {
+        mqtt_valid(NULL);
     }
+}
+
+void startUdpServer(void) {
     udpServer.begin(1234);
 }
 
 void stopUdpServer(void) {
-    if (!maybeNeedBind) {
-        return;
-    }
     udpServer.stop();
 }
 
 void tryConnect(const mqtt_unconnected_t *) {
+    if (mqttRetryTimer + 5000 > millis()) {
+        return;
+    }
+
+    mqttRetryTimer = millis();
     if (client.connect("ESP8266 Relay", MQTT_USERNAME, mqtt_password)) {
-        mqtt_connected(NULL);
         maybeNeedBind = false;
     } else {
-        mqtt_unconnected(NULL);
+        if (maybeNeedBind) {
+            mqtt_failed(NULL);
+        }
     }
 }
 
