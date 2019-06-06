@@ -38,6 +38,7 @@ unsigned long ledDelay = 1000;
 
 unsigned long button1PressTimer = millis();
 unsigned long button2PressTimer = millis();
+unsigned long smartconfigTimer = millis();
 
 bool maybeNeedBind = false;
 
@@ -276,6 +277,7 @@ void beginSmartconfig(void) {
     }
     WiFi.beginSmartConfig();
     maybeNeedBind = true;
+    smartconfigTimer = millis();
 }
 
 void smartconfigDone(const smartconfig_check_t *) {
@@ -292,6 +294,10 @@ void smartconfigDone(const smartconfig_check_t *) {
           EEPROM.write(i, wifiPassword[i - 32]);
         }
         EEPROM.commit();
+    } else {
+        if (millis() - smartconfigTimer > 120000) {
+            smartconfig_timeout(NULL);
+        }
     }
 }
 
@@ -370,7 +376,7 @@ void stopUdpServer(void) {
     udpServer.stop();
 }
 
-void tryConnect(void) {
+void tryConnect(const mqtt_unconnected_t *) {
     if (client.connect("ESP8266 Relay", MQTT_USERNAME, mqtt_password)) {
         mqtt_connected(NULL);
         maybeNeedBind = false;
