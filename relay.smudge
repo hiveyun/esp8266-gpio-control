@@ -4,6 +4,7 @@ relay {
     main [
         button1 -(@soundAlarm, relay1.toggle)-,
         button2 -(@soundAlarm, relay2.toggle)-,
+        button1LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
         button2LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
         check -(net.check, button1.check, button2.check)-,
     ],
@@ -84,9 +85,16 @@ button1 {
         pressed --> pressed,
         _ --,
     ],
-    pressed [
+    pressed (@button1EnterPressed) [
         check -(@button1Check)-,
         released -(relay.button1)-> released,
+        longpressed -(relay.button1LongPress)-> longpressed,
+        pressed -(@button1Pressed)-,
+        _ --,
+    ],
+    longpressed [
+        check -(@button1Check)-,
+        released --> released,
         _ --,
     ],
 }

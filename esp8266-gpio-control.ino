@@ -36,6 +36,7 @@ char mqtt_password[40];
 unsigned long ledTimer = millis();
 unsigned long ledDelay = 1000;
 
+unsigned long button1PressTimer = millis();
 unsigned long button2PressTimer = millis();
 
 void setup() {
@@ -179,6 +180,16 @@ void button1Check(const button1_check_t *a1) {
     }
 }
 
+void button1EnterPressed(void) {
+    button1PressTimer = millis();
+}
+
+void button1Pressed(const button1_pressed_t *) {
+    if (button1PressTimer + 1000 < millis()) {
+        button1_longpressed(NULL);
+    }
+}
+
 void button2Check(const button2_check_t *a1) {
     if (digitalRead(BUTTON_2)) {
         button2_released(NULL);
@@ -291,7 +302,7 @@ void soundAlarm(void) {
     digitalWrite(SOUND, LOW);
 }
 
-void soundAlarm1(const relay_button2LongPress_t *) {
+void soundAlarm1(void) {
     digitalWrite(SOUND, HIGH);
     delay(1000);
     digitalWrite(SOUND, LOW);
