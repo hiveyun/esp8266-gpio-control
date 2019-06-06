@@ -188,7 +188,7 @@ void button1EnterPressed(void) {
 }
 
 void button1Pressed(const button1_pressed_t *) {
-    if (button1PressTimer + 1000 < millis()) {
+    if (button1PressTimer + 2000 < millis()) {
         button1_longpressed(NULL);
     }
 }
