@@ -34,7 +34,7 @@ void initMqtt(void) {
     }
 }
 
-void connectCheck(const mqtt_check_t *a1) {
+void connectCheck(const mqtt_loop_t *a1) {
     if(client.connected()) {
         mqtt_connected(NULL);
     } else {
@@ -47,7 +47,7 @@ void onConnected(void) {
     client.subscribe("/request/+");
 }
 
-void fetchToken(const mqtt_check_t *) {
+void fetchToken(const mqtt_loop_t *) {
     char message = udpServer.parsePacket();
     int packetsize = udpServer.available();
     if (message) {
@@ -88,7 +88,7 @@ void fetchToken(const mqtt_check_t *) {
     }
 }
 
-void checkPassword(const mqtt_check_t *) {
+void checkPassword(const mqtt_loop_t *) {
     if (mqtt_password[0] == '\0') {
         mqtt_invalid(NULL);
     } else {

@@ -1,0 +1,28 @@
+network {
+    * ready -(@initWiFi)-> offline,
+    offline (@led200) [
+        loop -(@networkCheck, smartconfig.loop)-,
+        online --> online,
+        _ --,
+    ],
+    online (@led500) [
+        loop -(@networkCheck)-,
+        offline --> offline,
+        online -(mqtt.loop)-,
+        _ --,
+    ],
+}
+
+smartconfig {
+    * ready --> idle,
+    idle [
+        smartconfig --> smartconfig,
+        _ --,
+    ],
+    smartconfig (@led200, @beginSmartconfig, @setMaybeNeedBind) [
+        loop -(@smartconfigDone)-,
+        done -(@soundAlarm)-> idle,
+        timeout -(@soundError)-> idle,
+        _ --,
+    ] (@led1000)
+}

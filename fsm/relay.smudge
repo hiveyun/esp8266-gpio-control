@@ -1,0 +1,15 @@
+relay {
+    * ready --> off,
+
+    off (@relayOff) [
+        toggle --> on,
+        on --> on,
+        _ -(@soundError)-,
+    ],
+
+    on (@relayOn) [
+        toggle --> off,
+        off --> off,
+        _ -(@soundError)-,
+    ]
+}

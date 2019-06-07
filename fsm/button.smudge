@@ -1,0 +1,20 @@
+button {
+    * ready --> released,
+    released [
+        loop -(@buttonCheck)-,
+        pressed --> pressed,
+        _ --,
+    ],
+    pressed (@buttonEnterPressed) [
+        loop -(@buttonCheck)-,
+        released -(fsm.button)-> released,
+        longpressed -(fsm.buttonLongPress)-> longpressed,
+        pressed -(@buttonPressed)-,
+        _ --,
+    ],
+    longpressed [
+        loop -(@buttonCheck)-,
+        released --> released,
+        _ --,
+    ],
+}

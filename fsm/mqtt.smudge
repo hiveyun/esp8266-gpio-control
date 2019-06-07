@@ -1,0 +1,26 @@
+mqtt {
+    * ready -(@initMqtt)-> idle,
+    idle [
+        loop -(@checkPassword)-,
+        valid --> connecting,
+        invalid --> fetchToken,
+        _ --,
+    ],
+    fetchToken (@startUdpServer) [
+        loop -(@fetchToken)-,
+        done --> connecting,
+        _ --,
+    ] (@stopUdpServer),
+    connecting [
+        loop -(@connectCheck)-,
+        connected --> connected,
+        unconnected -(@tryConnect)-,
+        failed --> fetchToken,
+        _ --,
+    ],
+    connected (@onConnected, @led1000) [
+        loop -(@connectCheck)-,
+        unconnected --> connecting,
+        _ --,
+    ] (@led500),
+}

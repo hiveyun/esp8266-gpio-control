@@ -1,0 +1,11 @@
+fsm {
+   * power-on -(@soundAlarm)-> idle,
+
+    idle [
+        button1 -(@soundAlarm, relay1.toggle)-,
+        button2 -(@soundAlarm, relay2.toggle)-,
+        button1LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
+        button2LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
+        loop -(network.loop, button1.loop, button2.loop, led.loop)-,
+    ],
+}

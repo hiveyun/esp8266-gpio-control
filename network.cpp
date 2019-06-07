@@ -22,11 +22,11 @@ void initWiFi(void) {
     WiFi.begin(wifiAP, wifiPassword);
 }
 
-void netCheck(const net_check_t *a1) {
+void networkCheck(const network_loop_t *a1) {
     if (WiFi.status() == WL_CONNECTED) {
-        net_online(NULL);
+        network_online(NULL);
     } else {
-        net_offline(NULL);
+        network_offline(NULL);
     }
 }
 
@@ -39,7 +39,7 @@ void beginSmartconfig(void) {
     smartconfigTimer = millis();
 }
 
-void smartconfigDone(const smartconfig_check_t *) {
+void smartconfigDone(const smartconfig_loop_t *) {
     if (WiFi.smartConfigDone()) {
         smartconfig_done(NULL);
         strcpy(wifiAP, WiFi.SSID().c_str());

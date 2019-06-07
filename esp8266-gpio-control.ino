@@ -26,11 +26,11 @@ void setup() {
 }
 
 void loop() {
-  fsm_check(NULL);
+  fsm_loop(NULL);
   flushEventQueue();
 }
 
-void button1Check(const button1_check_t *a1) {
+void button1Check(const button1_loop_t *a1) {
     if (digitalRead(BUTTON_1)) {
         button1_released(NULL);
     } else {
@@ -48,7 +48,7 @@ void button1Pressed(const button1_pressed_t *) {
     }
 }
 
-void button2Check(const button2_check_t *a1) {
+void button2Check(const button2_loop_t *a1) {
     if (digitalRead(BUTTON_2)) {
         button2_released(NULL);
     } else {
