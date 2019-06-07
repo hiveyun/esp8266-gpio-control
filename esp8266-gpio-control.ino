@@ -1,6 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
-#include "relay_ext.h"
+#include "fsm_ext.h"
 #include "multism.h"
 #include "mqtt.h"
 
@@ -26,7 +26,7 @@ void setup() {
 }
 
 void loop() {
-  relay_check(NULL);
+  fsm_check(NULL);
   flushEventQueue();
 }
 

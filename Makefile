@@ -1,20 +1,20 @@
-all: relay relay.pdf multism.c
+all: fsm fsm.pdf multism.c
 
-relay: relay.smudge
+fsm: fsm.smudge
 	smudge $<
 
-relay.pdf: relay.gv
-	dot -Tpdf relay.gv > $@
+fsm.pdf: fsm.gv
+	dot -Tpdf fsm.gv > $@
 
-relay.gv: relay
+fsm.gv: fsm
 
-multism.c: relay.smudge
+multism.c: fsm.smudge
 	python3 smudge.py $< > $@
 
 clean:
-	rm -f relay.c
-	rm -f relay.h
-	rm -f relay.pdf
-	rm -f relay_ext.h
-	rm -f relay.gv
+	rm -f fsm.c
+	rm -f fsm.h
+	rm -f fsm.pdf
+	rm -f fsm_ext.h
+	rm -f fsm.gv
 	rm -f multism.c

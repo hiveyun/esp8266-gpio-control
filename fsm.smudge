@@ -1,7 +1,7 @@
-relay {
-   * power-on -(@soundAlarm)-> main,
+fsm {
+   * power-on -(@soundAlarm)-> idle,
 
-    main [
+    idle [
         button1 -(@soundAlarm, relay1.toggle)-,
         button2 -(@soundAlarm, relay2.toggle)-,
         button1LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
@@ -94,8 +94,8 @@ button1 {
     ],
     pressed (@button1EnterPressed) [
         check -(@button1Check)-,
-        released -(relay.button1)-> released,
-        longpressed -(relay.button1LongPress)-> longpressed,
+        released -(fsm.button1)-> released,
+        longpressed -(fsm.button1LongPress)-> longpressed,
         pressed -(@button1Pressed)-,
         _ --,
     ],
@@ -115,8 +115,8 @@ button2 {
     ],
     pressed (@button2EnterPressed) [
         check -(@button2Check)-,
-        released -(relay.button2)-> released,
-        longpressed -(relay.button2LongPress)-> longpressed,
+        released -(fsm.button2)-> released,
+        longpressed -(fsm.button2LongPress)-> longpressed,
         pressed -(@button2Pressed)-,
         _ --,
     ],
