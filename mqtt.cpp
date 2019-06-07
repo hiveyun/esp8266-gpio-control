@@ -1,3 +1,7 @@
+// https://github.com/bblanchon/ArduinoJson.git
+#include <ArduinoJson.h>
+// https://github.com/knolleary/pubsubclient.git
+#include <PubSubClient.h>
 #include <WiFiUDP.h>
 #include <EEPROM.h>
 #include "fsm_ext.h"
@@ -119,105 +123,25 @@ void tryConnect(const mqtt_unconnected_t *) {
     }
 }
 
-String getRelayState(int index) {
-    // Prepare relays JSON payload string
-    DynamicJsonDocument data(100);
-    String state = "on";
-    if (index == 1) {
-        state = String(relay1_Current_state_name());
-    } else if (index == 2) {
-        state = String(relay2_Current_state_name());
-    } else {
-        data["err"] = "relay not exists.";
-    }
-    if (state.equals("on")) {
-        data["relay_2_state"] = 1;
-    } else {
-        data["relay_2_state"] = 0;
-    }
-    char payload[100];
-    serializeJson(data, payload);
-    return String(payload);
-}
-
-String setRelayOn(int index) {
-    // Prepare relays JSON payload string
-    DynamicJsonDocument data(100);
-    String state;
-    if (index == 1) {
-        relay1_on(NULL);
-        data["relay_1_state"] = 1;
-    } else if (index == 2) {
-        relay2_on(NULL);
-        data["relay_2_state"] = 1;
-    } else {
-        data["err"] = "relay not exists.";
-    }
-    char payload[100];
-    serializeJson(data, payload);
-    return String(payload);
-}
-
-String setRelayOff(int index) {
-    // Prepare relays JSON payload string
-    DynamicJsonDocument data(100);
-    String state;
-    if (index == 1) {
-        relay1_off(NULL);
-        data["relay_1_state"] = 0;
-    } else if (index == 2) {
-        relay2_off(NULL);
-        data["relay_2_state"] = 0;
-    } else {
-        data["err"] = "relay not exists.";
-    }
-    char payload[100];
-    serializeJson(data, payload);
-    return String(payload);
-}
-
 // The callback for when a PUBLISH message is received from the server.
-void onMqttMessage(const char* topic, byte* payload, unsigned int length) {
+void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
     char json[length + 1];
     strncpy(json, (char*)payload, length);
     json[length] = '\0';
 
-    // Decode JSON request
-    DynamicJsonDocument data(1024);
-    deserializeJson(data, json);
-
-    // Check request method
-    String methodName = String((const char*)data["method"]);
-    String responseTopic = String(topic);
-    responseTopic.replace("request", "response");
-
-    if (methodName.equals("relay_state")) {
-        // Reply with GPIO status
-        client.publish(responseTopic.c_str(), getRelayState(data["index"]).c_str());
-    } else if (methodName.equals("relay_on")) {
-        client.publish(responseTopic.c_str(), setRelayOn(data["index"]).c_str());
-    } else if (methodName.equals("relay_off")) {
-        client.publish(responseTopic.c_str(), setRelayOff(data["index"]).c_str());
-    } else {
-        DynamicJsonDocument data(100);
-        data["err"] = "Not Support";
-        char payload[100];
-        serializeJson(data, payload);
-        client.publish(responseTopic.c_str(), payload);
-    }
+    mqtt_message_t msg;
+    msg.topic = topic;
+    msg.payload = json;
+    mqtt_message(&msg);
 }
 
-void publishRelayState(int index, int state) {
-    // Prepare relays JSON payload string
-    DynamicJsonDocument data(100);
-    if (index == 1) {
-        data["relay_1_state"] = state;
-    } else if (index == 2) {
-        data["relay_2_state"] = state;
-    } else {
-        return;
-    }
-    char payload[100];
-    serializeJson(data, payload);
-    client.publish("/attributes", payload);
+void onPublish(const mqtt_publish_t * msg) {
+    client.publish(msg->topic, msg->payload);
+}
+
+void mqttPublish(const char* topic, const char* payload) {
+    mqtt_publish_t msg;
+    msg.topic = topic;
+    msg.payload = payload;
+    mqtt_publish(&msg);
 }

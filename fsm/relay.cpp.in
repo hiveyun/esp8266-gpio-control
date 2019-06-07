@@ -1,6 +1,6 @@
 #include <ESP8266WiFi.h>
 #include "fsm_ext.h"
-#include "mqtt.h"
+#include "control.h"
 
 void relayRELAY_NAMEInit(void) {
     pinMode(RELAY_PIN, OUTPUT);

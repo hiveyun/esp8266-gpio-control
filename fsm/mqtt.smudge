@@ -21,6 +21,8 @@ mqtt {
     connected (@onConnected, @blinker1000) [
         loop -(@connectCheck)-,
         unconnected --> connecting,
+        publish -(@onPublish)-,
+        message -(@onMessage)-,
         _ --,
     ] (@blinker500),
 }
