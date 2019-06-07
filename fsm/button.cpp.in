@@ -1,0 +1,26 @@
+#include <ESP8266WiFi.h>
+#include "fsm_ext.h"
+
+unsigned long buttonBUTTON_NAMEPressTimer = millis();
+
+void buttonBUTTON_NAMEInit() {
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
+}
+
+void buttonBUTTON_NAMECheck(const buttonBUTTON_NAME_loop_t *a1) {
+    if (digitalRead(BUTTON_PIN)) {
+        buttonBUTTON_NAME_released(NULL);
+    } else {
+        buttonBUTTON_NAME_pressed(NULL);
+    }
+}
+
+void buttonBUTTON_NAMEEnterPressed(void) {
+    buttonBUTTON_NAMEPressTimer = millis();
+}
+
+void buttonBUTTON_NAMEPressed(const buttonBUTTON_NAME_pressed_t *) {
+    if (buttonBUTTON_NAMEPressTimer + 2000 < millis()) {
+        buttonBUTTON_NAME_longpressed(NULL);
+    }
+}

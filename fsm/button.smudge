@@ -1,5 +1,5 @@
 button {
-    * ready --> released,
+    * ready -(@buttonInit)-> released,
     released [
         loop -(@buttonCheck)-,
         pressed --> pressed,
