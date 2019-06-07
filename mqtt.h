@@ -5,5 +5,6 @@
 // https://github.com/knolleary/pubsubclient.git
 #include <PubSubClient.h>
 PubSubClient getMqttClient();
+void publishRelayState(int index, int state);
 #endif
 

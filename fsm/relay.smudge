@@ -1,5 +1,5 @@
 relay {
-    * ready --> off,
+    * ready -(@relayInit)-> off,
 
     off (@relayOff) [
         toggle --> on,

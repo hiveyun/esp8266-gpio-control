@@ -207,3 +207,17 @@ void onMqttMessage(const char* topic, byte* payload, unsigned int length) {
     }
 }
 
+void publishRelayState(int index, int state) {
+    // Prepare relays JSON payload string
+    DynamicJsonDocument data(100);
+    if (index == 1) {
+        data["relay_1_state"] = state;
+    } else if (index == 2) {
+        data["relay_2_state"] = state;
+    } else {
+        return;
+    }
+    char payload[100];
+    serializeJson(data, payload);
+    client.publish("/attributes", payload);
+}
