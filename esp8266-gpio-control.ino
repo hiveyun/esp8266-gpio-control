@@ -17,7 +17,6 @@
 #define BUTTON_1 16
 #define BUTTON_2 14
 #define SOUND 15
-#define LED 2
 
 #define MQTT_USERNAME "a937e135a6881193af39"
 #define MQTT_HOST "gw.huabot.com"
@@ -32,9 +31,6 @@ char wifiAP[32];
 char wifiPassword[64];
 
 char mqtt_password[40];
-
-unsigned long ledTimer = millis();
-unsigned long ledDelay = 1000;
 
 unsigned long button1PressTimer = millis();
 unsigned long button2PressTimer = millis();
@@ -51,7 +47,6 @@ void setup() {
     pinMode(BUTTON_2, INPUT_PULLUP);
 
     pinMode(SOUND, OUTPUT);
-    pinMode(LED, OUTPUT);
     initEventQueue();
     delay(10);
 }
@@ -147,10 +142,6 @@ void loop() {
   relay_check(NULL);
   flushEventQueue();
   client.loop();
-  if (ledTimer + ledDelay < millis()) {
-    ledTimer = millis();
-    led_toggle(NULL);
-  }
 }
 
 void initWiFi(void) {
@@ -217,26 +208,6 @@ void connectCheck(const mqtt_check_t *a1) {
     } else {
         mqtt_unconnected(NULL);
     }
-}
-
-void led1000(void) {
-    ledDelay = 1000;
-}
-
-void led200(void) {
-    ledDelay = 200;
-}
-
-void led500(void) {
-    ledDelay = 500;
-}
-
-void ledOff(void) {
-    digitalWrite(LED, HIGH);
-}
-
-void ledOn(void) {
-    digitalWrite(LED, LOW);
 }
 
 void netCheck(const net_check_t *a1) {
