@@ -24,16 +24,16 @@ $(FSM).smudge: $(FSM_SRC)
 	cat fsm/mqtt.smudge >> $@
 
 relay1.cpp: fsm/relay.cpp.in
-	sed 's/RELAY_NAME/1/g' $< | sed 's/RELAY_PIN/12/g' > $@
+	sed -e 's/RELAY_NAME/1/g' -e 's/RELAY_PIN/12/g' $< > $@
 
 relay2.cpp: fsm/relay.cpp.in
-	sed 's/RELAY_NAME/2/g' $< | sed 's/RELAY_PIN/13/g' > $@
+	sed -e 's/RELAY_NAME/2/g' -e 's/RELAY_PIN/13/g' $< > $@
 
 button1.cpp: fsm/button.cpp.in
-	sed 's/BUTTON_NAME/1/g' $< | sed 's/BUTTON_PIN/16/g' > $@
+	sed -e 's/BUTTON_NAME/1/g' -e 's/BUTTON_PIN/16/g' $< > $@
 
 button2.cpp: fsm/button.cpp.in
-	sed 's/BUTTON_NAME/2/g' $< | sed 's/BUTTON_PIN/14/g' > $@
+	sed -e 's/BUTTON_NAME/2/g' -e 's/BUTTON_PIN/14/g' $< > $@
 
 $(FSM).pdf: $(FSM).gv
 	dot -Tpdf $(FSM).gv > $@
@@ -54,3 +54,4 @@ clean:
 	rm -f relay2.cpp
 	rm -f button1.cpp
 	rm -f button2.cpp
+	rm -f $(FSM).smudge
