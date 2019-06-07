@@ -149,7 +149,7 @@ smartconfig {
         smartconfig --> smartconfig,
         _ --,
     ],
-    smartconfig (@led200, @beginSmartconfig) [
+    smartconfig (@led200, @beginSmartconfig, @setMaybeNeedBind) [
         check -(@smartconfigDone)-,
         done -(@soundAlarm)-> idle,
         timeout -(@soundError)-> idle,
