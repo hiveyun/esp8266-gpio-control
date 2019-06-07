@@ -1,0 +1,15 @@
+blinker {
+    * ready -(@blinkerInit)-> off,
+
+    off (@blinkerOff) [
+        loop -(@blinkerLoop)-,
+        toggle --> on,
+        _ --,
+    ],
+
+    on (@blinkerOn) [
+        loop -(@blinkerLoop)-,
+        toggle --> off,
+        _ --,
+    ]
+}

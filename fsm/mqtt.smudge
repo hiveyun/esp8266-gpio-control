@@ -18,9 +18,9 @@ mqtt {
         failed --> fetchToken,
         _ --,
     ],
-    connected (@onConnected, @led1000) [
+    connected (@onConnected, @blinker1000) [
         loop -(@connectCheck)-,
         unconnected --> connecting,
         _ --,
-    ] (@led500),
+    ] (@blinker500),
 }

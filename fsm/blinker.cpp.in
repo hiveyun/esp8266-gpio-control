@@ -1,0 +1,36 @@
+#include <ESP8266WiFi.h>
+#include "fsm_ext.h"
+
+unsigned long blinkerTimer = millis();
+unsigned long blinkerDelay = 1000;
+
+void blinkerInit(void) {
+    pinMode(BLINKER_PIN, OUTPUT);
+}
+
+void blinkerLoop(const blinker_loop_t *) {
+    if (blinkerTimer + blinkerDelay < millis()) {
+        blinker_toggle(NULL);
+        blinkerTimer = millis();
+    }
+}
+
+void blinker1000(void) {
+    blinkerDelay = 1000;
+}
+
+void blinker200(void) {
+    blinkerDelay = 200;
+}
+
+void blinker500(void) {
+    blinkerDelay = 500;
+}
+
+void blinkerOff(void) {
+    digitalWrite(BLINKER_PIN, HIGH);
+}
+
+void blinkerOn(void) {
+    digitalWrite(BLINKER_PIN, LOW);
+}

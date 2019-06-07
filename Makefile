@@ -3,11 +3,11 @@ FSM=fsm
 FSM_SRC=fsm/fsm.smudge \
 		fsm/button.smudge \
 		fsm/relay.smudge \
-		fsm/led.smudge \
+		fsm/blinker.smudge \
 		fsm/network.smudge \
 		fsm/mqtt.smudge
 
-all: $(FSM).c $(FSM).pdf multism.c relay1.cpp relay2.cpp button1.cpp button2.cpp
+all: $(FSM).c $(FSM).pdf multism.c relay1.cpp relay2.cpp button1.cpp button2.cpp blinker.cpp
 
 $(FSM).c: $(FSM).smudge
 	smudge $<
@@ -19,7 +19,7 @@ $(FSM).smudge: $(FSM_SRC)
 	sed 's/button/button2/g' fsm/button.smudge >> $@
 	sed 's/relay/relay1/g' fsm/relay.smudge >> $@
 	sed 's/relay/relay2/g' fsm/relay.smudge >> $@
-	cat fsm/led.smudge >> $@
+	cat fsm/blinker.smudge >> $@
 	cat fsm/network.smudge >> $@
 	cat fsm/mqtt.smudge >> $@
 
@@ -34,6 +34,9 @@ button1.cpp: fsm/button.cpp.in
 
 button2.cpp: fsm/button.cpp.in
 	sed -e 's/BUTTON_NAME/2/g' -e 's/BUTTON_PIN/14/g' $< > $@
+
+blinker.cpp: fsm/blinker.cpp.in
+	sed 's/BLINKER_PIN/2/g' $< > $@
 
 $(FSM).pdf: $(FSM).gv
 	dot -Tpdf $(FSM).gv > $@
@@ -55,3 +58,4 @@ clean:
 	rm -f button1.cpp
 	rm -f button2.cpp
 	rm -f $(FSM).smudge
+	rm -f blinker.cpp

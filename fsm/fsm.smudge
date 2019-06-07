@@ -6,6 +6,6 @@ fsm {
         button2 -(@soundAlarm, relay2.toggle)-,
         button1LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
         button2LongPress -(@soundAlarm1, smartconfig.smartconfig)-,
-        loop -(network.loop, button1.loop, button2.loop, led.loop)-,
+        loop -(network.loop, button1.loop, button2.loop, blinker.loop)-,
     ],
 }
