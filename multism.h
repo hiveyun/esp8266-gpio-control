@@ -5,6 +5,7 @@ extern "C" {
 #endif
 void flushEventQueue(void);
 int initEventQueue();
+extern void DEBUG_println(const char *);
 #ifdef __cplusplus
 }
 #endif

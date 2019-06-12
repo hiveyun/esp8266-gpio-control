@@ -9,8 +9,8 @@ void {name}_Send_Message({name}_Event_Wrapper e) {
     // allocate some memory that we can put in the message queue.
     msg = malloc(sizeof(system_message_t));
     if (msg == NULL) {
-        fprintf(stderr, "Failed to allocate message memory.\\n");
-        exit(-1);
+        DEBUG_println("Failed to allocate message memory.");
+        return;
     }
     msg->sm = {NAME};
     wrapper = &msg->wrapper.{name};
@@ -20,8 +20,8 @@ void {name}_Send_Message({name}_Event_Wrapper e) {
     // in order.
     success = enqueue(q, msg);
     if (!success) {
-        fprintf(stderr, "Failed to enqueue message.\\n");
-        exit(-1);
+        DEBUG_println("Failed to enqueue message.");
+        return;
     }
 }'''.replace('{name}', name).replace('{NAME}', name.upper()))
 
@@ -55,8 +55,8 @@ void flushEventQueue(void) {
     while(size(q) > 0) {
         success = dequeue(q, (void **)&msg);
         if (!success) {
-            fprintf(stderr, "Failed to dequeue element.\\n");
-            exit(-1);
+            DEBUG_println("Failed to dequeue element.");
+            return;
         }
         switch(msg->sm) {''')
     for name in names:
@@ -76,6 +76,7 @@ def generate(ident, names):
 #include <string.h>
 #include <stdbool.h>
 #include "queue.h"
+#include "multism.h"
 #include "{}_ext.h"'''.format(ident))
     gen_sm_id_t(names)
     gen_system_message_t(names)
@@ -88,26 +89,10 @@ def generate(ident, names):
         gen_Send_Message(name)
 
     print('''
-void SMUDGE_debug_print(const char *a1, const char *a2, const char *a3) {
-    fprintf(stderr, a1, a2, a3);
-}
-
-void SMUDGE_free(const void *a1) {
-    free((void *)a1);
-}
-
-void SMUDGE_panic(void) {
-    exit(-1);
-}
-
-void SMUDGE_panic_print(const char *a1, const char *a2, const char *a3) {
-    fprintf(stderr, a1, a2, a3);
-}
-
 int initEventQueue() {
     q = newq();
     if (q == NULL) {
-        fprintf(stderr, "Failed to get a queue.\\n");
+        DEBUG_println("Failed to get a queue.");
         return -1;
     }
     return 0;

@@ -125,14 +125,12 @@ void tryConnect(const mqtt_unconnected_t *) {
 
 // The callback for when a PUBLISH message is received from the server.
 void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
-    char json[length + 1];
-    strncpy(json, (char*)payload, length);
-    json[length] = '\0';
-
-    mqtt_message_t msg;
-    msg.topic = topic;
-    msg.payload = json;
-    mqtt_message(&msg);
+    mqtt_message_t *msg;
+    msg = (mqtt_message_t *)malloc(sizeof(mqtt_message_t));
+    msg -> topic = topic;
+    msg -> payload = payload;
+    msg -> length = length;
+    mqtt_message(msg);
 }
 
 void onPublish(const mqtt_publish_t * msg) {
@@ -140,8 +138,13 @@ void onPublish(const mqtt_publish_t * msg) {
 }
 
 void mqttPublish(const char* topic, const char* payload) {
-    mqtt_publish_t msg;
-    msg.topic = topic;
-    msg.payload = payload;
-    mqtt_publish(&msg);
+    mqtt_publish_t *msg;
+    msg = (mqtt_publish_t *)malloc(sizeof(mqtt_publish_t));
+    msg -> topic = topic;
+    msg -> payload = payload;
+    mqtt_publish(msg);
+}
+
+void mqttPublish1(const char* topic, const char* payload) {
+    client.publish(topic, payload);
 }

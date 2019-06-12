@@ -7,9 +7,11 @@ struct mqtt_publish_t {
 
 struct mqtt_message_t {
     const char* topic;
-    const char* payload;
+    uint8_t * payload;
+    unsigned int length;
 };
 
 void mqttPublish(const char* topic, const char* payload);
+void mqttPublish1(const char* topic, const char* payload);
 #endif
 

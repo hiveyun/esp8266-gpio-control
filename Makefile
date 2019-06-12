@@ -48,7 +48,7 @@ $(FSM).pdf: $(FSM).gv
 
 $(FSM).gv: $(FSM).c
 
-multism.c: $(FSM).smudge
+multism.c: $(FSM).smudge smudge.py
 	python3 smudge.py $< > $@
 
 clean:
