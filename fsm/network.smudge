@@ -1,11 +1,11 @@
 network {
     * ready -(@initWiFi)-> offline,
-    offline (@blinker200) [
+    offline (@blinker500) [
         loop -(@networkCheck, smartconfig.loop)-,
         online --> online,
         _ --,
     ],
-    online (@blinker500) [
+    online (@blinker1000) [
         loop -(@networkCheck)-,
         offline --> offline,
         online -(mqtt.loop)-,
@@ -21,8 +21,8 @@ smartconfig {
     ],
     smartconfig (@blinker200, @beginSmartconfig, @setMaybeNeedBind) [
         loop -(@smartconfigDone)-,
-        done -(@soundAlarm)-> idle,
-        timeout -(@soundError)-> idle,
+        done -(sound.alarm)-> idle,
+        timeout -(sound.error)-> idle,
         _ --,
     ] (@blinker1000)
 }

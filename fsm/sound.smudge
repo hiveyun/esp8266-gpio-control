@@ -1,0 +1,16 @@
+sound {
+    * ready -(@soundInit)-> idle,
+
+    idle [
+        alarm -(@sound200)-> sounding,
+        alarm1 -(@sound1000)-> sounding,
+        error -(@sound2000)-> sounding,
+        _ --,
+    ],
+
+    sounding (@soundBegin) [
+        loop -(@soundLoop)-,
+        end --> idle,
+        _ --,
+    ] (@soundEnd),
+}
