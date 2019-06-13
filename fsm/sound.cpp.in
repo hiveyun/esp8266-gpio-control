@@ -5,7 +5,7 @@ unsigned long soundSOUND_NAMETimer = millis();
 unsigned long soundSOUND_NAMEDelay = 1000;
 
 void soundSOUND_NAME1000(const soundSOUND_NAME_alarm1_t *) {
-    soundSOUND_NAMEDelay = 100;
+    soundSOUND_NAMEDelay = 1000;
 }
 
 void soundSOUND_NAME200(const soundSOUND_NAME_alarm_t *) {
