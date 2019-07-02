@@ -1,4 +1,5 @@
 #include <EEPROM.h>
+#include <ESP8266Ping.h>
 #include "fsm_ext.h"
 #include "network.h"
 
@@ -7,6 +8,7 @@ char wifiAP[32];
 char wifiPassword[64];
 
 unsigned long smartconfigTimer = millis();
+unsigned long pingTimer = millis();
 
 void initWiFi(void) {
     WiFi.mode(WIFI_STA);
@@ -24,10 +26,26 @@ void initWiFi(void) {
 
 void networkCheck(const network_loop_t *a1) {
     if (WiFi.status() == WL_CONNECTED) {
+        if (millis() - pingTimer > 60000) { // ping every 1 minute
+            network_ping(NULL);
+        } else {
+            network_online(NULL);
+        }
+    } else {
+        network_offline(NULL);
+    }
+}
+
+void pingHost(const network_ping_t *) {
+    if (Ping.ping("gw.huabot.com")) {
         network_online(NULL);
     } else {
         network_offline(NULL);
     }
+}
+
+void reconnect(void) {
+    WiFi.reconnect();
 }
 
 void beginSmartconfig(void) {

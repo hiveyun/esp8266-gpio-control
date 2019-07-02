@@ -1,6 +1,6 @@
 network {
     * ready -(@initWiFi)-> offline,
-    offline (@blinker500) [
+    offline (@blinker500, @reconnect) [
         loop -(@networkCheck, smartconfig.loop)-,
         online --> online,
         _ --,
@@ -9,6 +9,7 @@ network {
         loop -(@networkCheck)-,
         offline --> offline,
         online -(mqtt.loop)-,
+        ping -(@pingHost)-,
         _ --,
     ],
 }
