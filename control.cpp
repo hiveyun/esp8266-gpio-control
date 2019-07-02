@@ -97,6 +97,8 @@ void onMessage(const mqtt_message_t * msg) {
         rsp = setRelayOn(data["index"]);
     } else if (methodName.equals("relay_off")) {
         rsp = setRelayOff(data["index"]);
+    } else if (methodName.equals("ping")) {
+        rsp = genJson("result", "pong");
     } else {
         rsp = genErrJson("Not Support");
     }
