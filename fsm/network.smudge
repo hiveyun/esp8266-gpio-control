@@ -9,7 +9,6 @@ network {
         loop -(@networkCheck)-,
         offline --> offline,
         online -(mqtt.loop)-,
-        ping -(@pingHost)-,
         _ --,
     ],
 }

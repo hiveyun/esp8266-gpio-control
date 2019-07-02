@@ -110,5 +110,5 @@ void onMessage(const mqtt_message_t * msg) {
     } else {
         rsp = genErrJson("Not Support");
     }
-    mqttPublish1(responseTopic.c_str(), rsp.c_str());
+    mqttPublish(responseTopic.c_str(), rsp.c_str());
 }

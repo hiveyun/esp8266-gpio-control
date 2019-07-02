@@ -2,11 +2,13 @@
 #include <ArduinoJson.h>
 // https://github.com/knolleary/pubsubclient.git
 #include <PubSubClient.h>
+#include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
 #include <EEPROM.h>
 #include "fsm_ext.h"
-#include "network.h"
 #include "mqtt.h"
+
+unsigned long pingTimer = millis();
 
 void onMqttMessage(const char* topic, byte* payload, unsigned int length);
 
@@ -16,15 +18,13 @@ void onMqttMessage(const char* topic, byte* payload, unsigned int length);
 
 bool maybeNeedBind = false;
 
-WiFiClient wc = getWifiClient();
-PubSubClient client(wc);
+WiFiClient wifiClient;
+PubSubClient client(wifiClient);
 WiFiUDP udpServer;
 char mqtt_password[40];
 unsigned long mqttRetryTimer = millis();
 
-PubSubClient getMqttClient() {
-    return client;
-}
+bool connected = false;
 
 void setMaybeNeedBind(void) {
     maybeNeedBind = true;
@@ -41,8 +41,10 @@ void initMqtt(void) {
 void connectCheck(const mqtt_loop_t *a1) {
     if(client.connected()) {
         mqtt_connected(NULL);
+        connected = true;
     } else {
         mqtt_unconnected(NULL);
+        connected = false;
     }
     client.loop();
 }
@@ -133,18 +135,23 @@ void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
     mqtt_message(msg);
 }
 
-void onPublish(const mqtt_publish_t * msg) {
-    client.publish(msg->topic, msg->payload);
-}
-
 void mqttPublish(const char* topic, const char* payload) {
-    mqtt_publish_t *msg;
-    msg = (mqtt_publish_t *)malloc(sizeof(mqtt_publish_t));
-    msg -> topic = topic;
-    msg -> payload = payload;
-    mqtt_publish(msg);
+    if (connected) {
+        client.publish(topic, payload);
+    }
 }
 
-void mqttPublish1(const char* topic, const char* payload) {
-    client.publish(topic, payload);
+String genPingJson(String key, unsigned long val) {
+    DynamicJsonDocument data(100);
+    data[key] = val;
+    char payload[100];
+    serializeJson(data, payload);
+    return String(payload);
+}
+
+void pingMqtt(const mqtt_loop_t *) {
+    if (pingTimer + 60000 < millis()) {
+        pingTimer = millis();
+        mqttPublish("/ping", genPingJson("timer", pingTimer).c_str());
+    }
 }
