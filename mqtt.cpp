@@ -10,7 +10,7 @@
 
 void onMqttMessage(const char* topic, byte* payload, unsigned int length);
 
-#define MQTT_USERNAME "a937e135a6881193af39"
+#define MQTT_USERNAME "8a7b722f5d671136231b"
 #define MQTT_HOST "gw.huabot.com"
 #define MQTT_PORT 11883
 
