@@ -13,7 +13,15 @@ String genJson(String key, int val) {
 }
 
 String genStateJson(int index, int val) {
-    return genJson("relay_" + String(index) + "_state", 1);
+    return genJson("relay_" + String(index) + "_state", val);
+}
+
+String genResultJson(String val) {
+    DynamicJsonDocument data(100);
+    data["result"] = val;
+    char payload[100];
+    serializeJson(data, payload);
+    return String(payload);
 }
 
 String genErrJson(String val) {
@@ -98,7 +106,7 @@ void onMessage(const mqtt_message_t * msg) {
     } else if (methodName.equals("relay_off")) {
         rsp = setRelayOff(data["index"]);
     } else if (methodName.equals("ping")) {
-        rsp = genJson("result", "pong");
+        rsp = genResultJson("pong");
     } else {
         rsp = genErrJson("Not Support");
     }
