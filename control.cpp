@@ -37,6 +37,8 @@ String genRelayState(int index, String state) {
         return genStateJson(index, 1);
     } else if (state.equals("off")) {
         return genStateJson(index, 0);
+    } else if (state.equals("ready")) {
+        return genStateJson(index, 0);
     } else {
         return genErrJson(state);
     }
