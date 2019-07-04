@@ -8,8 +8,6 @@
 #include "fsm_ext.h"
 #include "mqtt.h"
 
-unsigned long pingTimer = millis();
-
 void onMqttMessage(const char* topic, byte* payload, unsigned int length);
 
 #define MQTT_USERNAME "8a7b722f5d671136231b"
@@ -23,8 +21,7 @@ PubSubClient client(wifiClient);
 WiFiUDP udpServer;
 char mqtt_password[40];
 unsigned long mqttRetryTimer = millis();
-
-bool connected = false;
+unsigned long pingTimer = millis();
 
 void setMaybeNeedBind(void) {
     maybeNeedBind = true;
@@ -41,10 +38,8 @@ void initMqtt(void) {
 void connectCheck(const mqtt_loop_t *a1) {
     if(client.connected()) {
         mqtt_connected(NULL);
-        connected = true;
     } else {
         mqtt_unconnected(NULL);
-        connected = false;
     }
     client.loop();
 }
@@ -135,10 +130,12 @@ void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
     mqtt_message(msg);
 }
 
-void mqttPublish(const char* topic, const char* payload) {
-    if (connected) {
-        client.publish(topic, payload);
-    }
+bool mqttPublish(const char* topic, const char* payload) {
+    return client.publish(topic, payload);
+}
+
+bool mqttPublish1(const char* topic, const char* payload) {
+    return client.publish(topic, payload, true);
 }
 
 String genPingJson(String key, unsigned long val) {
@@ -152,6 +149,9 @@ String genPingJson(String key, unsigned long val) {
 void pingMqtt(const mqtt_loop_t *) {
     if (pingTimer + 60000 < millis()) {
         pingTimer = millis();
-        mqttPublish("/ping", genPingJson("timer", pingTimer).c_str());
+        if (!mqttPublish1("/ping", genPingJson("timer", pingTimer).c_str())) {
+            mqtt_unconnected(NULL);
+            network_offline(NULL);
+        }
     }
 }

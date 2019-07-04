@@ -11,7 +11,6 @@ struct mqtt_message_t {
     unsigned int length;
 };
 
-void mqttPublish(const char* topic, const char* payload);
-void mqttPublish1(const char* topic, const char* payload);
+bool mqttPublish(const char* topic, const char* payload);
+bool mqttPublish1(const char* topic, const char* payload);
 #endif
-
