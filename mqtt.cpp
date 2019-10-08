@@ -52,20 +52,21 @@ void fetchToken(const mqtt_loop_t *) {
     char message = udpServer.parsePacket();
     int packetsize = udpServer.available();
     if (message) {
-        char data[200];
-        udpServer.read(data,packetsize);
+        char data[100];
+        udpServer.read(data, packetsize);
 
         data[packetsize] = '\0';
-        DynamicJsonDocument doc(200);
+        StaticJsonDocument<100> doc;
         deserializeJson(doc, data);
-        String type = String((const char*)doc["type"]);
-        DynamicJsonDocument rsp(200);
 
-        if (type.equals("Ping")) {
-            rsp["type"] = "Pong";
-        } else if (type.equals("MqttPass")) {
+        const char * type = (const char*)doc["type"];
+        char payload[100];
+
+        if (strcmp(type, "Ping") == 0) {
+            sprintf(payload, "%s", "{\"type\": \"Pong\"}");
+        } else if (strcmp(type, "MqttPass") == 0) {
             strcpy(mqtt_password, doc["value"]);
-            rsp["type"] = "Success";
+            sprintf(payload, "%s", "{\"type\": \"Success\"}");
             for (int i = 96; i < 136; ++i) {
               EEPROM.write(i, mqtt_password[i - 96]);
             }
@@ -73,17 +74,14 @@ void fetchToken(const mqtt_loop_t *) {
             client.disconnect();
             mqtt_done(NULL);
         } else {
-            rsp["type"] = "Error";
-            rsp["value"] = "Unknow type";
+            sprintf(payload, "%s", "{\"type\": \"Error\", \"value\": \"Unknow type\"}");
         }
 
         IPAddress remoteip=udpServer.remoteIP();
         uint16_t remoteport=udpServer.remotePort();
         udpServer.beginPacket(remoteip,remoteport);
 
-        serializeJson(rsp, data);
-
-        udpServer.write(data);
+        udpServer.write(payload);
 
         udpServer.endPacket();
     }
@@ -138,18 +136,12 @@ bool mqttPublish1(const char* topic, const char* payload) {
     return client.publish(topic, payload, true);
 }
 
-String genPingJson(String key, unsigned long val) {
-    DynamicJsonDocument data(100);
-    data[key] = val;
-    char payload[100];
-    serializeJson(data, payload);
-    return String(payload);
-}
-
 void pingMqtt(const mqtt_loop_t *) {
     if (pingTimer + 60000 < millis()) {
         pingTimer = millis();
-        if (!mqttPublish1("/ping", genPingJson("timer", pingTimer).c_str())) {
+        char payload[100];
+        sprintf(payload, "{\"timer\": %ld}", pingTimer);
+        if (!mqttPublish1("/ping", payload)) {
             mqtt_unconnected(NULL);
             network_offline(NULL);
         }
