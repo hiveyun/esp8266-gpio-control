@@ -4,12 +4,12 @@ relay {
     off (@relayOff) [
         toggle --> on,
         on --> on,
-        _ -(sound.error)-,
+        _ --,
     ],
 
     on (@relayOn) [
         toggle --> off,
         off --> off,
-        _ -(sound.error)-,
+        _ --,
     ]
 }
