@@ -51,8 +51,6 @@ void getRelayState(int index) {
     stateName[0] = '\0';
     if (index == 1) {
         sprintf(stateName, "%s", relay1_Current_state_name());
-    } else if (index == 2) {
-        sprintf(stateName, "%s", relay2_Current_state_name());
     } else {
         sprintf(stateName, "Relay %d not exists.", index);
     }
@@ -65,8 +63,6 @@ void setRelayOn(int index) {
     sprintf(stateName, "%s", "on");
     if (index == 1) {
         relay1_on(NULL);
-    } else if (index == 2) {
-        relay2_on(NULL);
     } else {
         stateName[0] = '\0';
         sprintf(stateName, "Relay %d not exists.", index);
@@ -80,8 +76,6 @@ void setRelayOff(int index) {
     sprintf(stateName, "%s", "off");
     if (index == 1) {
         relay1_off(NULL);
-    } else if (index == 2) {
-        relay2_off(NULL);
     } else {
         stateName[0] = '\0';
         sprintf(stateName, "Relay %d not exists.", index);
