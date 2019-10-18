@@ -4,6 +4,6 @@ fsm {
     idle [
         button1 -(relay1.toggle)-,
         button1LongPress -(smartconfig.smartconfig)-,
-        loop -(network.loop, button1.loop, blinker.loop)-,
+        loop -(network.loop, button1.loop, blinker.loop, relay1.loop)-,
     ],
 }

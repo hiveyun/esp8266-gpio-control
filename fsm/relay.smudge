@@ -2,12 +2,14 @@ relay {
     * ready -(@relayInit)-> off,
 
     off (@relayOff) [
+        loop --,
         toggle --> on,
         on --> on,
         _ --,
     ],
 
     on (@relayOn) [
+        loop --,
         toggle --> off,
         off --> off,
         _ --,
