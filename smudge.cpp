@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include "fsm_ext.h"
 #include "config.h"
+#include "multism.h"
 
 void SMUDGE_debug_print(const char *a1, const char *a2, const char *a3) {
     #if DEBUG

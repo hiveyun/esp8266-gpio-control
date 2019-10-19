@@ -3,7 +3,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+void flushEventQueue(void);
+int initEventQueue();
 extern void DEBUG_println(const char *);
+#define MAX_QUEUE_LENGTH 10
 #ifdef __cplusplus
 }
 #endif
