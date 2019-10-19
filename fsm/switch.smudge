@@ -1,14 +1,14 @@
-relay {
-    * ready -(@relayInit)-> off,
+switch {
+    * ready -(@switchInit)-> off,
 
-    off (@relayOff) [
+    off (@switchOff) [
         loop --,
         toggle --> on,
         on --> on,
         _ --,
     ],
 
-    on (@relayOn) [
+    on (@switchOn) [
         loop --,
         toggle --> off,
         off --> off,
