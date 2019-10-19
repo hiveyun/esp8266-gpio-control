@@ -7,7 +7,7 @@
 /fsm.smudge
 /fsm_ext.h
 /multism.c
-/relay1.cpp
-/relay2.cpp
+/switch1.cpp
+/switch2.cpp
 /blinker.cpp
 /sound.cpp

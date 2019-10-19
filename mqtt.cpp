@@ -37,7 +37,7 @@ void genJson(const char * key, int val) {
 
 void genStateJson(int index, int val) {
     tpl[0] = '\0';
-    sprintf(tpl, "relay_%d_state", index);
+    sprintf(tpl, "switch_%d_state", index);
     genJson(tpl, val);
 }
 
@@ -66,12 +66,10 @@ void genRelayState(int index, const char * state) {
 }
 
 void getRelayState(int index) {
-    // Prepare relays JSON payload string
+    // Prepare switchs JSON payload string
     stateName[0] = '\0';
     if (index == 1) {
-        sprintf(stateName, "%s", relay1_Current_state_name());
-    } else if (index == 2) {
-        sprintf(stateName, "%s", relay2_Current_state_name());
+        sprintf(stateName, "%s", switch1_Current_state_name());
     } else {
         sprintf(stateName, "Relay %d not exists.", index);
     }
@@ -79,13 +77,11 @@ void getRelayState(int index) {
 }
 
 void setRelayOn(int index) {
-    // Prepare relays JSON payload string
+    // Prepare switchs JSON payload string
     stateName[0] = '\0';
     sprintf(stateName, "%s", "on");
     if (index == 1) {
-        relay1_on(NULL);
-    } else if (index == 2) {
-        relay2_on(NULL);
+        switch1_on(NULL);
     } else {
         stateName[0] = '\0';
         sprintf(stateName, "Relay %d not exists.", index);
@@ -94,13 +90,11 @@ void setRelayOn(int index) {
 }
 
 void setRelayOff(int index) {
-    // Prepare relays JSON payload string
+    // Prepare switchs JSON payload string
     stateName[0] = '\0';
     sprintf(stateName, "%s", "off");
     if (index == 1) {
-        relay1_off(NULL);
-    } else if (index == 2) {
-        relay2_off(NULL);
+        switch1_off(NULL);
     } else {
         stateName[0] = '\0';
         sprintf(stateName, "Relay %d not exists.", index);
@@ -238,11 +232,11 @@ void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
 
     sprintf(new_topic, "%s%s%s", head, "response", tail);
 
-    if (strcmp(methodName, "relay_state") == 0) {
+    if (strcmp(methodName, "switch_state") == 0) {
         getRelayState(jsonData["index"]);
-    } else if (strcmp(methodName, "relay_on") == 0) {
+    } else if (strcmp(methodName, "switch_on") == 0) {
         setRelayOn(jsonData["index"]);
-    } else if (strcmp(methodName, "relay_off") == 0) {
+    } else if (strcmp(methodName, "switch_off") == 0) {
         setRelayOff(jsonData["index"]);
     } else if (strcmp(methodName, "ping") == 0) {
         genResultJson("pong");

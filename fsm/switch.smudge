@@ -1,0 +1,17 @@
+switch {
+    * ready -(@switchInit)-> off,
+
+    off (@switchOff) [
+        loop --,
+        toggle --> on,
+        on --> on,
+        _ --,
+    ],
+
+    on (@switchOn) [
+        loop --,
+        toggle --> off,
+        off --> off,
+        _ --,
+    ]
+}

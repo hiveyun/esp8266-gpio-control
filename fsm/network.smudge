@@ -21,8 +21,8 @@ smartconfig {
     ],
     smartconfig (@blinker200, @beginSmartconfig, @setMaybeNeedBind) [
         loop -(@smartconfigDone)-,
-        done -(sound.alarm)-> idle,
-        timeout -(sound.error)-> idle,
+        done --> idle,
+        timeout --> idle,
         _ --,
     ] (@blinker1000)
 }
