@@ -9,14 +9,15 @@ unsigned long heapDelay = 1000;
 unsigned long heapTimer = millis();
 
 void setup() {
-    minHeap = ESP.getFreeHeap() / 2;
+    #if DEBUG
+    Serial.begin(115200);
+    #endif
     EEPROM.begin(512);
     initEventQueue();
     delay(10);
+    minHeap = ESP.getFreeHeap() / 2;
     #if DEBUG
-    Serial.begin(115200);
-    delay(10);
-    Serial.printf("minHeap: %s\r\n", minHeap);
+    Serial.printf("minHeap: %d\r\n", minHeap);
     #endif
 }
 
@@ -40,9 +41,9 @@ void loop() {
   if (heapTimer + heapDelay < millis()) {
     heapTimer = millis();
     #if DEBUG
-    Serial.printf("heap: %s\r\n", ESP.getFreeHeap());
-    Serial.printf("heapFragmentation: %s\r\n", ESP.getHeapFragmentation());
-    Serial.printf("maxFreeBlockSize: %s\r\n", ESP.getMaxFreeBlockSize());
+    Serial.printf("heap: %d\r\n", ESP.getFreeHeap());
+    Serial.printf("heapFragmentation: %d\r\n", ESP.getHeapFragmentation());
+    Serial.printf("maxFreeBlockSize: %d\r\n", ESP.getMaxFreeBlockSize());
     #endif
     if (minHeap > ESP.getFreeHeap()) {
         ESP.reset();
