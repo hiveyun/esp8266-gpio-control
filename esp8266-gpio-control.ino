@@ -16,4 +16,9 @@ void setup() {
 void loop() {
   fsm_loop(NULL);
   flushEventQueue();
+  #if AUTO_REBOOT
+  if (REBOOT_TIMER < mills()) {
+    ESP.reboot();
+  }
+  #endif
 }
