@@ -1,7 +1,6 @@
 def gen_Send_Message(name):
     print('''
 void {name}_Send_Message({name}_Event_Wrapper e) {
-    DEBUG_println("{name}_Send_Message");
     msgs[currentQueueSize % MAX_QUEUE_LENGTH].sm = {NAME};
     msgs[currentQueueSize % MAX_QUEUE_LENGTH].wrapper.{name} = e;
     currentQueueSize += 1;
