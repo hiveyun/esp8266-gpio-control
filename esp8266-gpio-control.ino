@@ -13,18 +13,20 @@ void setup() {
     delay(10);
 }
 
-bool canRebot() {
+#if AUTO_REBOOT
+bool canReboot() {
     if (strcmp(switch1_Current_state_name(), "on") == 0) {
         return false;
     }
-    return false;
+    return true;
 }
+#endif
 
 void loop() {
   fsm_loop(NULL);
   flushEventQueue();
   #if AUTO_REBOOT
-  if (REBOOT_TIMER < millis() && canRebot()) {
+  if (REBOOT_TIMER < millis() && canReboot()) {
     ESP.reset();
   }
   #endif
