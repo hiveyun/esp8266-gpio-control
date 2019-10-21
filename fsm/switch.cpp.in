@@ -8,10 +8,10 @@ void switchSWITCH_NAMEInit(void) {
 
 void switchSWITCH_NAMEOff(void) {
     digitalWrite(SWITCH_PIN, LOW);
-    publishRelayState(SWITCH_NAME, 0);
+    publishSwitchState(SWITCH_NAME, 0);
 }
 
 void switchSWITCH_NAMEOn(void) {
     digitalWrite(SWITCH_PIN, HIGH);
-    publishRelayState(SWITCH_NAME, 1);
+    publishSwitchState(SWITCH_NAME, 1);
 }

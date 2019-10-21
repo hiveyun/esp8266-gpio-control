@@ -53,7 +53,7 @@ void genErrJson(const char * val) {
     serializeJson(jsonData, jsonPayload);
 }
 
-void genRelayState(int index, const char * state) {
+void genSwitchState(int index, const char * state) {
     if (strcmp(state, "on") == 0) {
         genStateJson(index, 1);
     } else if (strcmp(state, "off") == 0) {
@@ -65,18 +65,18 @@ void genRelayState(int index, const char * state) {
     }
 }
 
-void getRelayState(int index) {
+void getSwitchState(int index) {
     // Prepare switchs JSON payload string
     stateName[0] = '\0';
     if (index == 1) {
         sprintf(stateName, "%s", switch1_Current_state_name());
     } else {
-        sprintf(stateName, "Relay %d not exists.", index);
+        sprintf(stateName, "Switch %d not exists.", index);
     }
-    genRelayState(index, stateName);
+    genSwitchState(index, stateName);
 }
 
-void setRelayOn(int index) {
+void setSwitchOn(int index) {
     // Prepare switchs JSON payload string
     stateName[0] = '\0';
     sprintf(stateName, "%s", "on");
@@ -84,12 +84,12 @@ void setRelayOn(int index) {
         switch1_on(NULL);
     } else {
         stateName[0] = '\0';
-        sprintf(stateName, "Relay %d not exists.", index);
+        sprintf(stateName, "Switch %d not exists.", index);
     }
-    genRelayState(index, stateName);
+    genSwitchState(index, stateName);
 }
 
-void setRelayOff(int index) {
+void setSwitchOff(int index) {
     // Prepare switchs JSON payload string
     stateName[0] = '\0';
     sprintf(stateName, "%s", "off");
@@ -97,12 +97,12 @@ void setRelayOff(int index) {
         switch1_off(NULL);
     } else {
         stateName[0] = '\0';
-        sprintf(stateName, "Relay %d not exists.", index);
+        sprintf(stateName, "Switch %d not exists.", index);
     }
-    genRelayState(index, stateName);
+    genSwitchState(index, stateName);
 }
 
-void publishRelayState(int index, int state) {
+void publishSwitchState(int index, int state) {
     genStateJson(index, state);
     mqttPublish("/attributes", jsonPayload);
 }
@@ -193,7 +193,7 @@ void tryConnect(const mqtt_unconnected_t *) {
     }
 
     mqttRetryTimer = millis();
-    if (client.connect("ESP8266 Relay", MQTT_USERNAME, mqtt_password)) {
+    if (client.connect("ESP8266 Switch", MQTT_USERNAME, mqtt_password)) {
         maybeNeedBind = false;
     } else {
         if (maybeNeedBind) {
@@ -233,11 +233,11 @@ void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
     sprintf(new_topic, "%s%s%s", head, "response", tail);
 
     if (strcmp(methodName, "switch_state") == 0) {
-        getRelayState(jsonData["index"]);
+        getSwitchState(jsonData["index"]);
     } else if (strcmp(methodName, "switch_on") == 0) {
-        setRelayOn(jsonData["index"]);
+        setSwitchOn(jsonData["index"]);
     } else if (strcmp(methodName, "switch_off") == 0) {
-        setRelayOff(jsonData["index"]);
+        setSwitchOff(jsonData["index"]);
     } else if (strcmp(methodName, "ping") == 0) {
         genResultJson("pong");
     } else {
