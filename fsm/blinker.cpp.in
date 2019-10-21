@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include "fsm_ext.h"
 
-unsigned long blinkerTimer = millis();
+unsigned long blinkerTimer = 0;
 unsigned long blinkerDelay = 1000;
 
 void blinkerInit(void) {

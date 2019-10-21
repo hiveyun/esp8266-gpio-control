@@ -20,8 +20,8 @@ WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 WiFiUDP udpServer;
 char mqtt_password[40];
-unsigned long mqttRetryTimer = millis();
-unsigned long pingTimer = millis();
+unsigned long mqttRetryTimer = 0;
+unsigned long pingTimer = 0;
 
 #define JSON_PAYLOAD_LENGTH 256
 StaticJsonDocument<JSON_PAYLOAD_LENGTH> jsonData;

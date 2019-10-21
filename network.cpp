@@ -5,7 +5,7 @@
 char wifiAP[32];
 char wifiPassword[64];
 
-unsigned long smartconfigTimer = millis();
+unsigned long smartconfigTimer = 0;
 
 void initWiFi(void) {
     WiFi.mode(WIFI_STA);

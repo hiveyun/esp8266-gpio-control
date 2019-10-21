@@ -6,7 +6,7 @@
 
 int minHeap = 0;
 unsigned long heapDelay = 1000;
-unsigned long heapTimer = millis();
+unsigned long heapTimer = 0;
 
 void setup() {
     #if DEBUG
