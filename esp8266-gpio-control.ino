@@ -4,13 +4,20 @@
 #include "multism.h"
 #include "config.h"
 
+int minHeap = 0;
+unsigned long heapDelay = 1000;
+unsigned long heapTimer = millis();
+
 void setup() {
+    minHeap = ESP.getFreeHeap() / 2;
     EEPROM.begin(512);
     initEventQueue();
+    delay(10);
     #if DEBUG
     Serial.begin(115200);
-    #endif
     delay(10);
+    Serial.printf("minHeap: %s\r\n", minHeap);
+    #endif
 }
 
 #if AUTO_REBOOT
@@ -30,4 +37,15 @@ void loop() {
     ESP.reset();
   }
   #endif
+  if (heapTimer + heapDelay < millis()) {
+    heapTimer = millis();
+    #if DEBUG
+    Serial.printf("heap: %s\r\n", ESP.getFreeHeap());
+    Serial.printf("heapFragmentation: %s\r\n", ESP.getHeapFragmentation());
+    Serial.printf("maxFreeBlockSize: %s\r\n", ESP.getMaxFreeBlockSize());
+    #endif
+    if (minHeap > ESP.getFreeHeap()) {
+        ESP.reset();
+    }
+  }
 }
