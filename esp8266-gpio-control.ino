@@ -48,7 +48,7 @@ void loop() {
     Serial.printf("heapFragmentation: %d\r\n", ESP.getHeapFragmentation());
     Serial.printf("maxFreeBlockSize: %d\r\n", ESP.getMaxFreeBlockSize());
     #endif
-    if (minHeap > ESP.getFreeHeap()) {
+    if (minHeap > (int)ESP.getFreeHeap()) {
         ESP.reset();
     }
   }
