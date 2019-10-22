@@ -67,6 +67,11 @@ def generate(ident, names):
         gen_Send_Message(name)
 
     print('''
+
+unsigned long getEventSize() {
+    return currentQueueSize - currentIndex;
+}
+
 int initEventQueue() {
     DEBUG_println("initEventQueue");
     currentIndex = 0;

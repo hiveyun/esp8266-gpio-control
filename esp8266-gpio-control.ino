@@ -32,6 +32,9 @@ bool canReboot() {
 
 void loop() {
   fsm_loop(NULL);
+  if (getEventSize() > MAX_QUEUE_LENGTH) {
+    ESP.reset();
+  }
   flushEventQueue();
   #if AUTO_REBOOT
   if (REBOOT_TIMER < millis() && canReboot()) {
