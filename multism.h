@@ -6,7 +6,7 @@ extern "C" {
 bool flushEventQueue(void);
 int initEventQueue();
 extern void DEBUG_println(const char *);
-#define MAX_QUEUE_LENGTH 50
+#define MAX_QUEUE_LENGTH 1000
 #ifdef __cplusplus
 }
 #endif
