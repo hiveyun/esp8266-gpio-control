@@ -3,11 +3,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void flushEventQueue(void);
+bool flushEventQueue(void);
 int initEventQueue();
 extern void DEBUG_println(const char *);
 #define MAX_QUEUE_LENGTH 50
-unsigned long getEventSize();
 #ifdef __cplusplus
 }
 #endif

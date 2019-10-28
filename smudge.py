@@ -25,14 +25,21 @@ typedef struct {
 
 def gen_flushEventQueue(names):
     print('''
-void flushEventQueue(void) {
+bool flushEventQueue(void) {
     // This function could be running in a parallel thread
     // concurrently with the rest of the system. The important thing
     // is that it pops messages off the queue and sends them to
     // xxx_Handle_Message.
     system_message_t msg;
 
+    if (currentIndex == currentQueueSize) {
+        fsm_loop(NULL);
+    }
+
     while(currentIndex < currentQueueSize) {
+        if (currentQueueSize - currentIndex > MAX_QUEUE_LENGTH) {
+            return false;
+        }
         msg = msgs[currentIndex % MAX_QUEUE_LENGTH];
         currentIndex += 1;
         switch(msg.sm) {''')
@@ -43,6 +50,7 @@ void flushEventQueue(void) {
             break;'''.replace('{name}', name).replace('{NAME}', name.upper()))
     print('''        }
     }
+    return true;
 }''')
 
 def generate(ident, names):
@@ -67,10 +75,6 @@ def generate(ident, names):
         gen_Send_Message(name)
 
     print('''
-
-unsigned long getEventSize() {
-    return currentQueueSize - currentIndex;
-}
 
 int initEventQueue() {
     DEBUG_println("initEventQueue");
