@@ -32,7 +32,7 @@ bool flushEventQueue(void) {
     // xxx_Handle_Message.
     system_message_t msg;
 
-    if (currentIndex == currentQueueSize) {
+    if (currentIndex >= currentQueueSize) {
         fsm_loop(NULL);
     }
 
@@ -50,6 +50,7 @@ bool flushEventQueue(void) {
             break;'''.replace('{name}', name).replace('{NAME}', name.upper()))
     print('''        }
     }
+    currentIndex = currentQueueSize;
     return true;
 }''')
 
