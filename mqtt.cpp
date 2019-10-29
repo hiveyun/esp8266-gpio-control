@@ -4,9 +4,9 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
-#include <EEPROM.h>
 #include "fsm_ext.h"
 #include "mqtt.h"
+#include "storage.h"
 
 void onMqttMessage(const char* topic, byte* payload, unsigned int length);
 
@@ -114,9 +114,7 @@ void setMaybeNeedBind(void) {
 void initMqtt(void) {
     client.setServer(MQTT_HOST, MQTT_PORT);
     client.setCallback(onMqttMessage);
-    for (int i = 96; i < 136; ++i) {
-        mqtt_password[i - 96] = char(EEPROM.read(i));
-    }
+    storage_read(mqtt_password, MQTT_PASSWORD_ADDR, MQTT_PASSWORD_LENGTH);
 }
 
 void connectCheck(const mqtt_loop_t *a1) {
@@ -151,10 +149,7 @@ void fetchToken(const mqtt_loop_t *) {
         } else if (strcmp(type, "MqttPass") == 0) {
             strcpy(mqtt_password, doc["value"]);
             sprintf(payload, "%s", "{\"type\": \"Success\"}");
-            for (int i = 96; i < 136; ++i) {
-              EEPROM.write(i, mqtt_password[i - 96]);
-            }
-            EEPROM.commit();
+            storage_write(mqtt_password, MQTT_PASSWORD_ADDR, MQTT_PASSWORD_LENGTH);
             client.disconnect();
             mqtt_done(NULL);
         } else {

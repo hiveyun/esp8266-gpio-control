@@ -1,6 +1,6 @@
 #include <ESP8266WiFi.h>
-#include <EEPROM.h>
 #include "fsm_ext.h"
+#include "storage.h"
 
 char wifiAP[32];
 char wifiPassword[64];
@@ -10,13 +10,8 @@ unsigned long smartconfigTimer = 0;
 void initWiFi(void) {
     WiFi.mode(WIFI_STA);
 
-    for (int i = 0; i < 32; ++i) {
-      wifiAP[i] = char(EEPROM.read(i));
-    }
-
-    for (int i = 32; i < 96; ++i) {
-      wifiPassword[i - 32] = char(EEPROM.read(i));
-    }
+    storage_read(wifiAP, WIFI_AP_ADDR, WIFI_AP_LENGTH);
+    storage_read(wifiPassword, WIFI_PASSWORD_ADDR, WIFI_PASSWORD_LENGTH);
 
     WiFi.begin(wifiAP, wifiPassword);
 }
@@ -48,14 +43,9 @@ void smartconfigDone(const smartconfig_loop_t *) {
         strcpy(wifiAP, WiFi.SSID().c_str());
         strcpy(wifiPassword, WiFi.psk().c_str());
 
-        for (int i = 0; i < 32; ++i) {
-          EEPROM.write(i, wifiAP[i]);
-        }
+        storage_write(wifiAP, WIFI_AP_ADDR, WIFI_AP_LENGTH);
+        storage_write(wifiPassword, WIFI_PASSWORD_ADDR, WIFI_PASSWORD_LENGTH);
 
-        for (int i = 32; i < 96; ++i) {
-          EEPROM.write(i, wifiPassword[i - 32]);
-        }
-        EEPROM.commit();
     } else {
         if (millis() - smartconfigTimer > 120000) {
             smartconfig_timeout(NULL);
