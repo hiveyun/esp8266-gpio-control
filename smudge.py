@@ -60,6 +60,7 @@ def generate(ident, names):
 #include <string.h>
 #include <stdbool.h>
 #include "multism.h"
+#include "config.h"
 #include "{}_ext.h"'''.format(ident))
     gen_sm_id_t(names)
     gen_system_message_t(names)
