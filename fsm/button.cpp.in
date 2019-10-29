@@ -7,7 +7,7 @@ void buttonBUTTON_NAMEInit() {
     pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 
-void buttonBUTTON_NAMECheck(const buttonBUTTON_NAME_loop_t *a1) {
+void buttonBUTTON_NAMECheck(const buttonBUTTON_NAME_loop_t *) {
     if (digitalRead(BUTTON_PIN)) {
         buttonBUTTON_NAME_released(NULL);
     } else {

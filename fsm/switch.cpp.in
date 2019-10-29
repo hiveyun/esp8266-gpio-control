@@ -1,17 +1,29 @@
 #include <ESP8266WiFi.h>
 #include "fsm_ext.h"
 #include "mqtt.h"
+#include "storage.h"
 
 void switchSWITCH_NAMEInit(void) {
     pinMode(SWITCH_PIN, OUTPUT);
 }
 
+void switchSWITCH_NAMEStep(const switchSWITCH_NAME_loop_t *) {
+    char stateSWITCH_NAME = switch_read(SWITCH_NAME);
+    if (stateSWITCH_NAME == 1) {
+        switchSWITCH_NAME_on(NULL);
+    } else {
+        switchSWITCH_NAME_off(NULL);
+    }
+}
+
 void switchSWITCH_NAMEOff(void) {
     digitalWrite(SWITCH_PIN, LOW);
     publishSwitchState(SWITCH_NAME, 0);
+    switch_write(0, SWITCH_NAME);
 }
 
 void switchSWITCH_NAMEOn(void) {
     digitalWrite(SWITCH_PIN, HIGH);
     publishSwitchState(SWITCH_NAME, 1);
+    switch_write(1, SWITCH_NAME);
 }

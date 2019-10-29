@@ -1,5 +1,11 @@
 switch {
-    * ready -(@switchInit)-> off,
+    * ready -(@switchInit)-> step,
+
+    step [
+        loop -(@switchStep)-,
+        on --> on,
+        off --> off,
+    ],
 
     off (@switchOff) [
         loop --,
