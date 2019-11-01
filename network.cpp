@@ -6,6 +6,8 @@ char wifiAP[32];
 char wifiPassword[64];
 
 unsigned long smartconfigTimer = 0;
+unsigned long offlineTimer = 0;
+bool offline = true;
 
 void initWiFi(void) {
     WiFi.mode(WIFI_STA);
@@ -18,8 +20,18 @@ void initWiFi(void) {
 
 void networkCheck(const network_loop_t *a1) {
     if (WiFi.status() == WL_CONNECTED) {
+        offline = false;
         network_online(NULL);
     } else {
+        if (offline) {
+            // if connect mqtt server failed more then 10 minutes, reset system.
+            if (offlineTimer + 600000 > millis()) {
+                ESP.reset();
+            }
+        } else {
+            offline = true;
+            offlineTimer = millis();
+        }
         network_offline(NULL);
     }
 }

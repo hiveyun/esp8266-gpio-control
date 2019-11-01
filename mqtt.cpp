@@ -22,6 +22,7 @@ WiFiUDP udpServer;
 char mqtt_password[40];
 unsigned long mqttRetryTimer = 0;
 unsigned long pingTimer = 0;
+unsigned long offlineTimer = 0;
 
 #define JSON_PAYLOAD_LENGTH 256
 StaticJsonDocument<JSON_PAYLOAD_LENGTH> jsonData;
@@ -182,12 +183,22 @@ void stopUdpServer(void) {
     udpServer.stop();
 }
 
+void onLeaveConnected(void) {
+    offlineTimer = millis();
+}
+
 void tryConnect(const mqtt_unconnected_t *) {
     if (mqttRetryTimer + 5000 > millis()) {
         return;
     }
 
     mqttRetryTimer = millis();
+
+    // if connect mqtt server failed more then 30 minutes, reset system.
+    if (offlineTimer + 1800000 > millis()) {
+        ESP.reset();
+    }
+
     if (client.connect("ESP8266 Switch", MQTT_USERNAME, mqtt_password)) {
         maybeNeedBind = false;
     } else {

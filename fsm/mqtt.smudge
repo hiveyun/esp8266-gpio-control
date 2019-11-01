@@ -22,5 +22,5 @@ mqtt {
         loop -(@connectCheck, @pingMqtt)-,
         unconnected --> connecting,
         _ --,
-    ] (@blinker500),
+    ] (@onLeaveConnected, @blinker500),
 }
