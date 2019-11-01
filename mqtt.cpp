@@ -22,7 +22,7 @@ WiFiUDP udpServer;
 char mqtt_password[40];
 unsigned long mqttRetryTimer = 0;
 unsigned long pingTimer = 0;
-unsigned long offlineTimer = 0;
+unsigned long mqttLoseTimer = 0;
 
 #define JSON_PAYLOAD_LENGTH 256
 StaticJsonDocument<JSON_PAYLOAD_LENGTH> jsonData;
@@ -184,7 +184,7 @@ void stopUdpServer(void) {
 }
 
 void onLeaveConnected(void) {
-    offlineTimer = millis();
+    mqttLoseTimer = millis();
 }
 
 void tryConnect(const mqtt_unconnected_t *) {
@@ -195,7 +195,7 @@ void tryConnect(const mqtt_unconnected_t *) {
     mqttRetryTimer = millis();
 
     // if connect mqtt server failed more then 30 minutes, reset system.
-    if (offlineTimer + 1800000 > millis()) {
+    if (mqttLoseTimer + 1800000 < millis()) {
         ESP.reset();
     }
 

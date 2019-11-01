@@ -25,7 +25,7 @@ void networkCheck(const network_loop_t *a1) {
     } else {
         if (offline) {
             // if connect mqtt server failed more then 10 minutes, reset system.
-            if (offlineTimer + 600000 > millis()) {
+            if (offlineTimer + 600000 < millis()) {
                 ESP.reset();
             }
         } else {
