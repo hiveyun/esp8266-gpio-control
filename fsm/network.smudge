@@ -22,7 +22,6 @@ smartconfig {
     smartconfig (@blinker200, @beginSmartconfig, @setMaybeNeedBind) [
         loop -(@smartconfigDone)-,
         done --> idle,
-        timeout --> idle,
         _ --,
     ] (@blinker1000)
 }

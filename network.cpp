@@ -5,7 +5,6 @@
 char wifiAP[32];
 char wifiPassword[64];
 
-unsigned long smartconfigTimer = 0;
 unsigned long offlineTimer = 0;
 bool offline = true;
 
@@ -46,7 +45,6 @@ void beginSmartconfig(void) {
         delay(100);
     }
     WiFi.beginSmartConfig();
-    smartconfigTimer = millis();
 }
 
 void smartconfigDone(const smartconfig_loop_t *) {
@@ -58,9 +56,5 @@ void smartconfigDone(const smartconfig_loop_t *) {
         storage_write(wifiAP, WIFI_AP_ADDR, WIFI_AP_LENGTH);
         storage_write(wifiPassword, WIFI_PASSWORD_ADDR, WIFI_PASSWORD_LENGTH);
 
-    } else {
-        if (millis() - smartconfigTimer > 120000) {
-            smartconfig_timeout(NULL);
-        }
     }
 }
