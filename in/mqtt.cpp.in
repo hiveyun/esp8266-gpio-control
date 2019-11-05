@@ -63,42 +63,7 @@ void genSwitchState(int index, const char * state) {
     }
 }
 
-void getSwitchState(int index) {
-    // Prepare switchs JSON payload string
-    stateName[0] = '\0';
-    if (index == 1) {
-        sprintf(stateName, "%s", switch1_Current_state_name());
-    } else {
-        sprintf(stateName, "Switch %d not exists.", index);
-    }
-    genSwitchState(index, stateName);
-}
-
-void setSwitchOn(int index) {
-    // Prepare switchs JSON payload string
-    stateName[0] = '\0';
-    sprintf(stateName, "%s", "on");
-    if (index == 1) {
-        switch1_on(NULL);
-    } else {
-        stateName[0] = '\0';
-        sprintf(stateName, "Switch %d not exists.", index);
-    }
-    genSwitchState(index, stateName);
-}
-
-void setSwitchOff(int index) {
-    // Prepare switchs JSON payload string
-    stateName[0] = '\0';
-    sprintf(stateName, "%s", "off");
-    if (index == 1) {
-        switch1_off(NULL);
-    } else {
-        stateName[0] = '\0';
-        sprintf(stateName, "Switch %d not exists.", index);
-    }
-    genSwitchState(index, stateName);
-}
+{SWITCH_ACTIONS}
 
 void publishSwitchState(int index, int state) {
     genStateJson(index, state);

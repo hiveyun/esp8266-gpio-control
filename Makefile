@@ -7,7 +7,9 @@ FSM_SRC=fsm/fsm.smudge \
 		fsm/network.smudge \
 		fsm/mqtt.smudge \
 
-all: $(FSM).c $(FSM).pdf multism.c switch1.cpp button1.cpp blinker.cpp
+SWITCH_COUNT=1
+
+all: $(FSM).c $(FSM).pdf multism.c switch1.cpp button1.cpp blinker.cpp mqtt.cpp
 
 $(FSM).c: $(FSM).smudge
 	smudge $<
@@ -38,6 +40,9 @@ $(FSM).gv: $(FSM).c
 multism.c: $(FSM).smudge scripts/smudge.py
 	python3 scripts/smudge.py $< > $@
 
+mqtt.cpp: in/mqtt.cpp.in scripts/switch_action.py
+	python3 scripts/switch_action.py $< $(SWITCH_COUNT) > $@
+
 clean:
 	rm -f $(FSM).c
 	rm -f $(FSM).h
@@ -49,3 +54,4 @@ clean:
 	rm -f button1.cpp
 	rm -f $(FSM).smudge
 	rm -f blinker.cpp
+	rm -f mqtt.cpp
