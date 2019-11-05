@@ -6,13 +6,10 @@
 #include <WiFiUDP.h>
 #include "fsm_ext.h"
 #include "mqtt.h"
+#include "config.h"
 #include "storage.h"
 
 void onMqttMessage(const char* topic, byte* payload, unsigned int length);
-
-#define MQTT_USERNAME "8a7b722f5d671136231b"
-#define MQTT_HOST "gw.huabot.com"
-#define MQTT_PORT 11883
 
 bool maybeNeedBind = false;
 

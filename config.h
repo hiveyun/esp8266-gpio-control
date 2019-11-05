@@ -16,6 +16,11 @@ extern "C" {
 // set default switch state when started if no keep switch state
 #define DEFAULT_SWITCH_STATE SWITCH_STATE_OFF
 
+// mqtt server config
+#define MQTT_USERNAME "8a7b722f5d671136231b"
+#define MQTT_HOST "gw.huabot.com"
+#define MQTT_PORT 11883
+
 #ifdef __cplusplus
 }
 #endif
