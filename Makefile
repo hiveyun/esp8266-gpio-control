@@ -35,8 +35,8 @@ $(FSM).pdf: $(FSM).gv
 
 $(FSM).gv: $(FSM).c
 
-multism.c: $(FSM).smudge smudge.py
-	python3 smudge.py $< > $@
+multism.c: $(FSM).smudge scripts/smudge.py
+	python3 scripts/smudge.py $< > $@
 
 clean:
 	rm -f $(FSM).c
