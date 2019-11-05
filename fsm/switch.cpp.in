@@ -8,7 +8,11 @@ void switchSWITCH_NAMEInit(void) {
 }
 
 void switchSWITCH_NAMEStep(const switchSWITCH_NAME_loop_t *) {
+    #if KEEP_SWITCH_STATE
     char stateSWITCH_NAME = switch_read(SWITCH_NAME);
+    #else
+    char stateSWITCH_NAME = DEFAULT_SWITCH_STATE;
+    #endif
     if (stateSWITCH_NAME == 1) {
         switchSWITCH_NAME_on(NULL);
     } else {
@@ -17,13 +21,17 @@ void switchSWITCH_NAMEStep(const switchSWITCH_NAME_loop_t *) {
 }
 
 void switchSWITCH_NAMEOff(void) {
-    digitalWrite(SWITCH_PIN, LOW);
+    digitalWrite(SWITCH_PIN, SWITCH_STATE_OFF);
     publishSwitchState(SWITCH_NAME, 0);
+    #if KEEP_SWITCH_STATE
     switch_write(0, SWITCH_NAME);
+    #endif
 }
 
 void switchSWITCH_NAMEOn(void) {
-    digitalWrite(SWITCH_PIN, HIGH);
+    digitalWrite(SWITCH_PIN, SWITCH_STATE_ON);
     publishSwitchState(SWITCH_NAME, 1);
+    #if KEEP_SWITCH_STATE
     switch_write(1, SWITCH_NAME);
+    #endif
 }
