@@ -3,7 +3,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #define DEBUG 0
+// collect heap for memory debug
+#define DEBUG_HEAP 0
 
 
 #define AUTO_REBOOT 0 // enable auto reboot

@@ -261,10 +261,18 @@ void pingMqtt(const mqtt_loop_t *) {
     if (pingTimer + 60000 < millis()) {
         pingTimer = millis();
         char payload[100];
+        #if DEBUG_HEAP
         sprintf(payload, "{\"heap\": %d, \"runner\": %ld}", (int)ESP.getFreeHeap(), millis());
         if (!mqttPublish1("/telemetry", payload)) {
             mqtt_unconnected(NULL);
             network_offline(NULL);
         }
+        #else
+        sprintf(payload, "{\"timer\": %ld}", millis());
+        if (!mqttPublish1("/ping", payload)) {
+            mqtt_unconnected(NULL);
+            network_offline(NULL);
+        }
+        #endif
     }
 }
