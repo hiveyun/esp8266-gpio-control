@@ -21,13 +21,13 @@ $(FSM).smudge: $(FSM_SRC)
 	cat fsm/network.smudge >> $@
 	cat fsm/mqtt.smudge >> $@
 
-switch1.cpp: fsm/switch.cpp.in
+switch1.cpp: in/switch.cpp.in
 	sed -e 's/SWITCH_NAME/1/g' -e 's/SWITCH_PIN/12/g' $< > $@
 
-button1.cpp: fsm/button.cpp.in
+button1.cpp: in/button.cpp.in
 	sed -e 's/BUTTON_NAME/1/g' -e 's/BUTTON_PIN/16/g' $< > $@
 
-blinker.cpp: fsm/blinker.cpp.in
+blinker.cpp: in/blinker.cpp.in
 	sed 's/BLINKER_PIN/2/g' $< > $@
 
 $(FSM).pdf: $(FSM).gv
