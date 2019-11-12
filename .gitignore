@@ -1,5 +1,4 @@
-/button1.cpp
-/button2.cpp
+/button*.cpp
 /fsm.c
 /fsm.gv
 /fsm.h
@@ -7,8 +6,9 @@
 /fsm.smudge
 /fsm_ext.h
 /multism.c
-/switch1.cpp
-/switch2.cpp
+/switch*.cpp
 /blinker.cpp
 /sound.cpp
 /mqtt.cpp
+/config.h
+/config.mk
