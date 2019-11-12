@@ -1,5 +1,6 @@
 ## 如何编译
 
+- 配置编译信息 `cp config.sample.mk config.mk`
 - 安装 [smudge](https://github.com/smudgelang/smudge)
 - 执行 `make`
 - 打开 Arduino IDE
