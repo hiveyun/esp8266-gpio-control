@@ -61,4 +61,4 @@ clean:
 	rm -f $(FSM).smudge
 	rm -f blinker.cpp
 	rm -f mqtt.cpp
-	rm -r config.h
+	rm -f config.h
