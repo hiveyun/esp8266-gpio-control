@@ -7,7 +7,13 @@ FSM_SRC=fsm/fsm.smudge \
 		fsm/network.smudge \
 		fsm/mqtt.smudge \
 
-SWITCH_COUNT=1
+SWITCH_COUNT=2
+
+ENVS=SWITCH_PIN_1=12
+ENVS+=SWITCH_PIN_2=13
+
+ENVS+=BUTTON_PIN_1=16
+ENVS+=BUTTON_PIN_2=15
 
 # mqtt server config
 PRODUCT_KEY=8a7b722f5d671136231b
@@ -22,7 +28,8 @@ SWITCH_STATE_OFF=0
 # set default switch state when started if no keep switch state
 DEFAULT_SWITCH_STATE=SWITCH_STATE_OFF
 
-all: $(FSM).c $(FSM).pdf multism.c switch1.cpp button1.cpp blinker.cpp mqtt.cpp config.h
+all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h
+	@env $(ENVS) python3 scripts/switch_button.py $(SWITCH_COUNT)
 
 $(FSM).c: $(FSM).smudge
 	smudge $<
@@ -35,12 +42,6 @@ $(FSM).smudge: $(FSM_SRC)
 	cat fsm/blinker.smudge >> $@
 	cat fsm/network.smudge >> $@
 	cat fsm/mqtt.smudge >> $@
-
-switch1.cpp: in/switch.cpp.in
-	sed -e 's/SWITCH_NAME/1/g' -e 's/SWITCH_PIN/12/g' $< > $@
-
-button1.cpp: in/button.cpp.in
-	sed -e 's/BUTTON_NAME/1/g' -e 's/BUTTON_PIN/16/g' $< > $@
 
 blinker.cpp: in/blinker.cpp.in
 	sed 's/BLINKER_PIN/2/g' $< > $@
@@ -73,8 +74,8 @@ clean:
 	rm -f $(FSM)_ext.h
 	rm -f $(FSM).gv
 	rm -f multism.c
-	rm -f switch1.cpp
-	rm -f button1.cpp
+	rm -f switch*.cpp
+	rm -f button*.cpp
 	rm -f $(FSM).smudge
 	rm -f blinker.cpp
 	rm -f mqtt.cpp
