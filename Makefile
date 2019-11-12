@@ -15,7 +15,7 @@ all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h
 $(FSM).c: $(FSM).smudge
 	smudge $<
 
-$(FSM).smudge: $(FSM_SRC) Makefile scripts/fsm.py
+$(FSM).smudge: $(FSM_SRC) scripts/fsm.py config.mk
 	python3 scripts/fsm.py $(SWITCH_COUNT) > $@
 	for i in $$(seq 1 $(SWITCH_COUNT)); do \
 		sed "s/button/button$$i/g" fsm/button.smudge >> $@; \
@@ -39,7 +39,7 @@ multism.c: $(FSM).smudge scripts/smudge.py
 mqtt.cpp: in/mqtt.cpp.in scripts/switch_action.py
 	python3 scripts/switch_action.py $< $(SWITCH_COUNT) > $@
 
-config.h: in/config.h.in Makefile
+config.h: in/config.h.in config.mk
 	sed -e 's/MQTT_USERNAME.*/MQTT_USERNAME "${PRODUCT_KEY}"/' \
 		-e 's/MQTT_HOST.*/MQTT_HOST "${MQTT_HOST}"/' \
 		-e 's/MQTT_PORT.*/MQTT_PORT ${MQTT_PORT}/' \
