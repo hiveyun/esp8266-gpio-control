@@ -39,7 +39,7 @@ multism.c: $(FSM).smudge scripts/smudge.py
 mqtt.cpp: in/mqtt.cpp.in scripts/switch_action.py
 	python3 scripts/switch_action.py $< $(SWITCH_COUNT) > $@
 
-config.h: config.sample.h Makefile
+config.h: in/config.h.in Makefile
 	sed -e 's/MQTT_USERNAME.*/MQTT_USERNAME "${PRODUCT_KEY}"/' \
 		-e 's/MQTT_HOST.*/MQTT_HOST "${MQTT_HOST}"/' \
 		-e 's/MQTT_PORT.*/MQTT_PORT ${MQTT_PORT}/' \
