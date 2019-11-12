@@ -1,9 +1,0 @@
-fsm {
-   * power-on --> idle,
-
-    idle [
-        button1 -(switch1.toggle)-,
-        button1LongPress -(smartconfig.smartconfig)-,
-        loop -(network.loop, button1.loop, blinker.loop, switch1.loop)-,
-    ],
-}

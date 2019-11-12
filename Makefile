@@ -9,7 +9,7 @@ FSM_SRC=fsm/fsm.smudge \
 
 SWITCH_COUNT=2
 
-ENVS=SWITCH_PIN_1=12
+ENVS =SWITCH_PIN_1=12
 ENVS+=SWITCH_PIN_2=13
 
 ENVS+=BUTTON_PIN_1=16
@@ -34,11 +34,12 @@ all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h
 $(FSM).c: $(FSM).smudge
 	smudge $<
 
-$(FSM).smudge: $(FSM_SRC)
-	> $@
-	cat fsm/fsm.smudge >> $@
-	sed 's/button/button1/g' fsm/button.smudge >> $@
-	sed 's/switch/switch1/g' fsm/switch.smudge >> $@
+$(FSM).smudge: $(FSM_SRC) Makefile scripts/fsm.py
+	python3 scripts/fsm.py $(SWITCH_COUNT) > $@
+	for i in $$(seq 1 $(SWITCH_COUNT)); do \
+		sed "s/button/button$$i/g" fsm/button.smudge >> $@; \
+		sed "s/switch/switch$$i/g" fsm/switch.smudge >> $@; \
+	done
 	cat fsm/blinker.smudge >> $@
 	cat fsm/network.smudge >> $@
 	cat fsm/mqtt.smudge >> $@
