@@ -9,7 +9,20 @@ FSM_SRC=fsm/fsm.smudge \
 
 SWITCH_COUNT=1
 
-all: $(FSM).c $(FSM).pdf multism.c switch1.cpp button1.cpp blinker.cpp mqtt.cpp
+# mqtt server config
+PRODUCT_KEY=8a7b722f5d671136231b
+MQTT_HOST=gw.huabot.com
+MQTT_PORT=11883
+
+# switch state config
+# lose power will keep the state
+KEEP_SWITCH_STATE=1
+SWITCH_STATE_ON=1
+SWITCH_STATE_OFF=0
+# set default switch state when started if no keep switch state
+DEFAULT_SWITCH_STATE=SWITCH_STATE_OFF
+
+all: $(FSM).c $(FSM).pdf multism.c switch1.cpp button1.cpp blinker.cpp mqtt.cpp config.h
 
 $(FSM).c: $(FSM).smudge
 	smudge $<
@@ -43,6 +56,16 @@ multism.c: $(FSM).smudge scripts/smudge.py
 mqtt.cpp: in/mqtt.cpp.in scripts/switch_action.py
 	python3 scripts/switch_action.py $< $(SWITCH_COUNT) > $@
 
+config.h: config.sample.h Makefile
+	sed -e 's/MQTT_USERNAME.*/MQTT_USERNAME "${PRODUCT_KEY}"/' \
+		-e 's/MQTT_HOST.*/MQTT_HOST "${MQTT_HOST}"/' \
+		-e 's/MQTT_PORT.*/MQTT_PORT ${MQTT_PORT}/' \
+		-e 's/KEEP_SWITCH_STATE.*/KEEP_SWITCH_STATE ${KEEP_SWITCH_STATE}/' \
+		-e 's/SWITCH_STATE_ON.*/SWITCH_STATE_ON ${SWITCH_STATE_ON}/' \
+		-e 's/SWITCH_STATE_OFF.*/SWITCH_STATE_OFF ${SWITCH_STATE_OFF}/' \
+		-e 's/DEFAULT_SWITCH_STATE.*/DEFAULT_SWITCH_STATE ${DEFAULT_SWITCH_STATE}/' \
+		$< > $@
+
 clean:
 	rm -f $(FSM).c
 	rm -f $(FSM).h
@@ -55,3 +78,4 @@ clean:
 	rm -f $(FSM).smudge
 	rm -f blinker.cpp
 	rm -f mqtt.cpp
+	rm -r config.h
