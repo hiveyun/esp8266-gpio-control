@@ -21,21 +21,12 @@ void setup() {
     #endif
 }
 
-#if AUTO_REBOOT
-bool canReboot() {
-    if (strcmp(switch1_Current_state_name(), "on") == 0) {
-        return false;
-    }
-    return true;
-}
-#endif
-
 void loop() {
   if (!flushEventQueue()) {
     ESP.reset();
   }
   #if AUTO_REBOOT
-  if (REBOOT_TIMER < millis() && canReboot()) {
+  if (REBOOT_TIMER < millis()) {
     ESP.reset();
   }
   #endif
