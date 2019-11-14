@@ -161,6 +161,12 @@ void tryConnect(const mqtt_unconnected_t *) {
         ESP.reset();
     }
 
+    #if DEBUG
+    Serial.printf("MQTT_USERNAME: %s\r\n", MQTT_USERNAME);
+    Serial.printf("MQTT_PASSWORD: %s\r\n", mqtt_password);
+    #endif
+
+
     if (client.connect("ESP8266 Switch", MQTT_USERNAME, mqtt_password)) {
         maybeNeedBind = false;
     } else {
