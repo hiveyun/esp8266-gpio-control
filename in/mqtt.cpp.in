@@ -177,20 +177,28 @@ void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
 
     // Check request method
     const char * methodName = (const char*)jsonData["method"];
-
+    // strstr
+    const char needle[8] = "request";
+    const char * tmpStr = strstr(topic, needle);
     const size_t len = strlen(topic);
+    const size_t lenTmp = strlen(tmpStr);
+
     char new_topic[len + 2];
 
-    // remove "/request/"
-    char reqid[len - 9];
+    char head[len - lenTmp];
+    char tail[lenTmp];
 
     size_t i;
 
-    for (i = 9; i < len; i ++) {
-        reqid[i - 9] = topic[i];
+    for (i = 0; i < len - lenTmp; i ++) {
+        head[i] = topic[i];
     }
 
-    sprintf(new_topic, "/response/%s", reqid);
+    for (i = 0; i < lenTmp - 7; i ++) {
+        tail[i] = tmpStr[i+7];
+    }
+
+    sprintf(new_topic, "%s%s%s", head, "response", tail);
 
     if (strcmp(methodName, "switch_state") == 0) {
         getSwitchState(jsonData["index"]);
