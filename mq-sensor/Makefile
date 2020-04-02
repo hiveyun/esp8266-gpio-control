@@ -52,7 +52,7 @@ config.h: $(IN_PATH)/config.h.in config.mk
 	sed -e 's/MQTT_USERNAME.*/MQTT_USERNAME "${PRODUCT_KEY}"/' \
 		-e 's/MQTT_HOST.*/MQTT_HOST "${MQTT_HOST}"/' \
 		-e 's/MQTT_PORT.*/MQTT_PORT ${MQTT_PORT}/' \
-		-e 's/USE_SWITCH.*/USE_SWITCH 0/' \
+		-e 's/USE_MQ.*/USE_MQ 1/' \
 		$< > $@
 
 %.h:
