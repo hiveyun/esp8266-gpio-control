@@ -19,7 +19,8 @@ ALL_FILES=mqtt.h \
 		  storage.h \
 
 all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h $(ALL_FILES)
-	@env $(ENVS) python3 $(SCRIPT_PATH)/switch_button.py $(SWITCH_COUNT)
+	@env $(ENVS) python3 $(SCRIPT_PATH)/button.py $(SWITCH_COUNT)
+	@env $(ENVS) python3 $(SCRIPT_PATH)/switch.py $(SWITCH_COUNT)
 
 $(FSM).c: $(FSM).smudge
 	smudge $<
