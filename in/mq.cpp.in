@@ -25,9 +25,8 @@ void mqMQ_NAMEExitAlarm(void) {
 }
 
 void mqMQ_NAMEAlarm(const mqMQ_NAME_alarm_t *) {
-    if (mqMQ_NAMEAlarmTimer + 2000 < millis()) {
+    if (mqMQ_NAMEAlarmTimer + 6000 < millis()) {
         mqMQ_NAMEAlarmTimer = millis();
-        // mqMQ_NAME_alarm(NULL);
-        // do some thing
+        publishMQState(1);
     }
 }
