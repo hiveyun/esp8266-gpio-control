@@ -25,8 +25,8 @@ all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h $(ALL_FILES)
 $(FSM).c: $(FSM).smudge
 	smudge $<
 
-$(FSM).smudge: $(FSM_SRC) $(SCRIPT_PATH)/fsm.py config.mk
-	python3 $(SCRIPT_PATH)/fsm.py $(SWITCH_COUNT) > $@
+$(FSM).smudge: $(FSM_SRC) fsm.py config.mk
+	python3 fsm.py $(SWITCH_COUNT) > $@
 	for i in $$(seq 1 $(SWITCH_COUNT)); do \
 		sed "s/button/button$$i/g" $(FSM_PATH)/button.smudge >> $@; \
 		sed "s/switch/switch$$i/g" $(FSM_PATH)/switch.smudge >> $@; \
