@@ -56,6 +56,7 @@ config.h: $(IN_PATH)/config.h.in config.mk
 		-e 's/SWITCH_STATE_ON.*/SWITCH_STATE_ON ${SWITCH_STATE_ON}/' \
 		-e 's/SWITCH_STATE_OFF.*/SWITCH_STATE_OFF ${SWITCH_STATE_OFF}/' \
 		-e 's/DEFAULT_SWITCH_STATE.*/DEFAULT_SWITCH_STATE ${DEFAULT_SWITCH_STATE}/' \
+		-e 's/USE_SWITCH.*/USE_SWITCH 1/' \
 		$< > $@
 
 %.h:
