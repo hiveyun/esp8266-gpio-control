@@ -14,6 +14,12 @@ void initWiFi(void) {
     storage_read(wifiAP, WIFI_AP_ADDR, WIFI_AP_LENGTH);
     storage_read(wifiPassword, WIFI_PASSWORD_ADDR, WIFI_PASSWORD_LENGTH);
 
+    #if DEBUG
+    Serial.printf("Storage Read\r\n");
+    Serial.printf("WiFi Ap: %s\r\n", wifiAP);
+    Serial.printf("WiFi Password: %s\r\n", wifiPassword);
+    #endif
+
     WiFi.begin(wifiAP, wifiPassword);
 }
 
@@ -52,6 +58,12 @@ void smartconfigDone(const smartconfig_loop_t *) {
         smartconfig_done(NULL);
         strcpy(wifiAP, WiFi.SSID().c_str());
         strcpy(wifiPassword, WiFi.psk().c_str());
+
+        #if DEBUG
+        Serial.printf("Smartconfig Done\r\n");
+        Serial.printf("WiFi Ap: %s\r\n", wifiAP);
+        Serial.printf("WiFi Password: %s\r\n", wifiPassword);
+        #endif
 
         storage_write(wifiAP, WIFI_AP_ADDR, WIFI_AP_LENGTH);
         storage_write(wifiPassword, WIFI_PASSWORD_ADDR, WIFI_PASSWORD_LENGTH);
