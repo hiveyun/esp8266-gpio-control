@@ -76,6 +76,7 @@ clean:
 	rm -f $(FSM).smudge
 	rm -f blinker.cpp
 	rm -f mqtt.cpp
+	rm -f sound.cpp
 	rm -f config.h
 	rm -f $(ALL_FILES)
 	rm -f $(PROJECT_NAME).ino
