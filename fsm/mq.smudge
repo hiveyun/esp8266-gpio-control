@@ -1,0 +1,14 @@
+mq {
+    * ready -(@mqInit)-> idle,
+    idle [
+        loop -(@mqCheck)-,
+        alarm --> alarm,
+        _ --,
+    ],
+    alarm (@mqEnterAlarm) [
+        loop -(@mqCheck)-,
+        alarm -(@mqAlarm, sound.alarm)-,
+        idle --> idle,
+        _ --,
+    ] (@mqExitAlarm, sound.idle),
+}

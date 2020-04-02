@@ -1,0 +1,32 @@
+#include <ESP8266WiFi.h>
+#include "fsm_ext.h"
+#include "mqtt.h"
+
+unsigned long mqMQ_NAMEAlarmTimer = 0;
+
+void mqMQ_NAMEInit() {
+    pinMode(MQ_PIN, INPUT_PULLUP);
+}
+
+void mqMQ_NAMECheck(const mqMQ_NAME_loop_t *) {
+    if (digitalRead(MQ_PIN)) {
+        mqMQ_NAME_alarm(NULL);
+    } else {
+        mqMQ_NAME_idle(NULL);
+    }
+}
+
+void mqMQ_NAMEEnterAlarm(void) {
+    publishMQState(1);
+}
+
+void mqMQ_NAMEExitAlarm(void) {
+    publishMQState(0);
+}
+
+void mqMQ_NAMEAlarm(const mqMQ_NAME_alarm_t *) {
+    if (mqMQ_NAMEAlarmTimer + 6000 < millis()) {
+        mqMQ_NAMEAlarmTimer = millis();
+        publishMQState(1);
+    }
+}
