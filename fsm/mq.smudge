@@ -7,8 +7,8 @@ mq {
     ],
     alarm (@mqEnterAlarm) [
         loop -(@mqCheck)-,
-        alarm -(@mqAlarm)-,
+        alarm -(@mqAlarm, sound.alarm)-,
         idle --> idle,
         _ --,
-    ] (@mqExitAlarm),
+    ] (@mqExitAlarm, sound.idle),
 }

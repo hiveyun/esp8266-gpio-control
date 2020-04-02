@@ -1,0 +1,39 @@
+#include <ESP8266WiFi.h>
+#include "fsm_ext.h"
+
+unsigned long soundSOUND_NAMETimer = millis();
+unsigned long soundSOUND_NAMEDelay = 1000;
+
+int soundSOUND_NAMEState = LOW;
+
+void soundSOUND_NAME200(const soundSOUND_NAME_alarm_t *) {
+    soundSOUND_NAMEDelay = 200;
+}
+
+void toggleSoundSOUND_NAMEState() {
+    if (soundSOUND_NAMEState == HIGH) {
+        digitalWrite(SOUND_PIN, LOW);
+        soundSOUND_NAMEState = LOW;
+    } else {
+        digitalWrite(SOUND_PIN, HIGH);
+        soundSOUND_NAMEState = HIGH;
+    }
+}
+
+void soundSOUND_NAMEEnd(void) {
+    digitalWrite(SOUND_PIN, LOW);
+    soundSOUND_NAMEState = LOW;
+}
+
+void soundSOUND_NAMEInit(void) {
+    pinMode(SOUND_PIN, OUTPUT);
+    digitalWrite(SOUND_PIN, LOW);
+    soundSOUND_NAMEState = LOW;
+}
+
+void soundSOUND_NAMELoop(const soundSOUND_NAME_loop_t *) {
+    if (soundSOUND_NAMETimer + soundSOUND_NAMEDelay < millis()) {
+        soundSOUND_NAMETimer = millis();
+        toggleSoundSOUND_NAMEState();
+    }
+}

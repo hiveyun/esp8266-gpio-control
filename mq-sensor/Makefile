@@ -10,6 +10,7 @@ FSM_SRC=$(FSM_PATH)/button.smudge \
 		$(FSM_PATH)/blinker.smudge \
 		$(FSM_PATH)/network.smudge \
 		$(FSM_PATH)/mqtt.smudge \
+		$(FSM_PATH)/sound.smudge \
 
 ALL_FILES=mqtt.h \
 		  multism.h \
@@ -22,6 +23,7 @@ all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h $(ALL_FILES)
 	@cp ../esp8266.ino $(PROJECT_NAME).ino
 	sed -e 's/BUTTON_NAME/1/g' -e 's/BUTTON_PIN/$(BUTTON_PIN_1)/g' $(IN_PATH)/button.cpp.in > button1.cpp
 	sed -e 's/MQ_NAME/1/g' -e 's/MQ_PIN/$(MQ_PIN_1)/g' $(IN_PATH)/mq.cpp.in > mq1.cpp
+	sed -e 's/SOUND_NAME//g' -e 's/SOUND_PIN/$(SOUND_PIN)/g' $(IN_PATH)/sound.cpp.in > sound.cpp
 
 $(FSM).c: $(FSM).smudge
 	smudge $<
@@ -33,6 +35,7 @@ $(FSM).smudge: $(FSM_SRC) fsm_head.smudge config.mk
 	cat $(FSM_PATH)/blinker.smudge >> $@
 	cat $(FSM_PATH)/network.smudge >> $@
 	cat $(FSM_PATH)/mqtt.smudge >> $@
+	cat $(FSM_PATH)/sound.smudge >> $@
 
 blinker.cpp: $(IN_PATH)/blinker.cpp.in
 	sed 's/BLINKER_PIN/2/g' $< > $@
