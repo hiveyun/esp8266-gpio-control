@@ -29,6 +29,8 @@ extern "C" {
 #define USE_SWITCH 0
 #define USE_MQ 0
 
+#define MQ_FIELD "smoke"
+
 #ifdef __cplusplus
 }
 #endif

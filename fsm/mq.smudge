@@ -10,5 +10,5 @@ mq {
         alarm -(@mqAlarm)-,
         idle --> idle,
         _ --,
-    ],
+    ] (@mqExitAlarm),
 }

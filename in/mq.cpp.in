@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include "fsm_ext.h"
+#include "mqtt.h"
 
 unsigned long mqMQ_NAMEAlarmTimer = 0;
 
@@ -16,11 +17,16 @@ void mqMQ_NAMECheck(const mqMQ_NAME_loop_t *) {
 }
 
 void mqMQ_NAMEEnterAlarm(void) {
-    mqMQ_NAMEAlarmTimer = millis();
+    publishMQState(1);
+}
+
+void mqMQ_NAMEExitAlarm(void) {
+    publishMQState(0);
 }
 
 void mqMQ_NAMEAlarm(const mqMQ_NAME_alarm_t *) {
     if (mqMQ_NAMEAlarmTimer + 2000 < millis()) {
+        mqMQ_NAMEAlarmTimer = millis();
         // mqMQ_NAME_alarm(NULL);
         // do some thing
     }

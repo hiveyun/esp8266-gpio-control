@@ -74,6 +74,13 @@ void publishSwitchState(int index, int state) {
 }
 #endif
 
+#if USE_MQ
+void publishMQState(int state) {
+    genJson(MQ_FIELD, state);
+    mqttPublish("/telemetry", jsonPayload);
+}
+#endif
+
 void setMaybeNeedBind(void) {
     maybeNeedBind = true;
 }
