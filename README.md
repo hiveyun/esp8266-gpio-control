@@ -1,6 +1,6 @@
 ## 如何编译
 
-- cp gpio-control
+- cd gpio-control or cd mq-sensor
 - 配置编译信息 `cp config.sample.mk config.mk`
 - 安装 [smudge](https://github.com/smudgelang/smudge)
 - 执行 `make`
