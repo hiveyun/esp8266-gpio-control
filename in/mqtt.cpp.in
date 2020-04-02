@@ -33,11 +33,13 @@ void genJson(const char * key, int val) {
     serializeJson(jsonData, jsonPayload);
 }
 
+#if USE_SWITCH
 void genStateJson(int index, int val) {
     tpl[0] = '\0';
     sprintf(tpl, "switch_%d_state", index);
     genJson(tpl, val);
 }
+#endif
 
 void genResultJson(const char * val) {
     jsonData.clear();
@@ -51,6 +53,7 @@ void genErrJson(const char * val) {
     serializeJson(jsonData, jsonPayload);
 }
 
+#if USE_SWITCH
 void genSwitchState(int index, const char * state) {
     if (strcmp(state, "on") == 0) {
         genStateJson(index, 1);
@@ -69,6 +72,7 @@ void publishSwitchState(int index, int state) {
     genStateJson(index, state);
     mqttPublish("/attributes", jsonPayload);
 }
+#endif
 
 void setMaybeNeedBind(void) {
     maybeNeedBind = true;
@@ -206,14 +210,16 @@ void onMqttMessage(const char* topic, uint8_t * payload, unsigned int length) {
 
     sprintf(new_topic, "%s%s%s", head, "response", tail);
 
-    if (strcmp(methodName, "switch_state") == 0) {
+    if (strcmp(methodName, "ping") == 0) {
+        genResultJson("pong");
+#if USE_SWITCH
+    } else if (strcmp(methodName, "switch_state") == 0) {
         getSwitchState(jsonData["index"]);
     } else if (strcmp(methodName, "switch_on") == 0) {
         setSwitchOn(jsonData["index"]);
     } else if (strcmp(methodName, "switch_off") == 0) {
         setSwitchOff(jsonData["index"]);
-    } else if (strcmp(methodName, "ping") == 0) {
-        genResultJson("pong");
+#endif
     } else {
         genErrJson("Not Support");
     }
