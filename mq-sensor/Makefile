@@ -19,6 +19,7 @@ ALL_FILES=mqtt.h \
 		  storage.h \
 
 all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h $(ALL_FILES)
+	@cp ../esp8266.ino $(PROJECT_NAME).ino
 	sed -e 's/BUTTON_NAME/1/g' -e 's/BUTTON_PIN/$(BUTTON_PIN_1)/g' $(IN_PATH)/button.cpp.in > button1.cpp
 	sed -e 's/MQ_NAME/1/g' -e 's/MQ_PIN/$(MQ_PIN_1)/g' $(IN_PATH)/mq.cpp.in > mq1.cpp
 
@@ -74,3 +75,4 @@ clean:
 	rm -f mqtt.cpp
 	rm -f config.h
 	rm -f $(ALL_FILES)
+	rm -f $(PROJECT_NAME).ino

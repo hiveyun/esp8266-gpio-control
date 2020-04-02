@@ -19,6 +19,7 @@ ALL_FILES=mqtt.h \
 		  storage.h \
 
 all: $(FSM).c $(FSM).pdf multism.c blinker.cpp mqtt.cpp config.h $(ALL_FILES)
+	@cp ../esp8266.ino $(PROJECT_NAME).ino
 	@env $(ENVS) python3 $(SCRIPT_PATH)/button.py $(SWITCH_COUNT)
 	@env $(ENVS) python3 $(SCRIPT_PATH)/switch.py $(SWITCH_COUNT)
 
@@ -80,3 +81,4 @@ clean:
 	rm -f mqtt.cpp
 	rm -f config.h
 	rm -f $(ALL_FILES)
+	rm -f $(PROJECT_NAME).ino

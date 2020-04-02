@@ -1,3 +1,5 @@
+PROJECT_NAME=gpio-control
+
 SWITCH_COUNT=2
 
 ENVS =SWITCH_PIN_1=12

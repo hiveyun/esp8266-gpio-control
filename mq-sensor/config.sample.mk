@@ -1,3 +1,5 @@
+PROJECT_NAME=mq-sensor
+
 MQ_PIN_1=12
 BUTTON_PIN_1=16
 
